@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:5ef52021d560dcf0340467816534dae9:2fc6b8b9951e83fc0f39d64f63336875:cde709370900f12288f3449eded86f07$ -->
+<TextureAtlas imagePath="atlas.png">
+    <SubTexture name="blackbird" x="2" y="2" width="49" height="119"/>
+    <SubTexture name="sprite0001" x="2" y="123" width="19" height="10"/>
+    <SubTexture name="sprite0002" x="2" y="123" width="19" height="10"/>
+    <SubTexture name="sprite0003" x="2" y="123" width="19" height="10"/>
+    <SubTexture name="sprite0004" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0005" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0006" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0007" x="2" y="135" width="19" height="10"/>
+    <SubTexture name="sprite0008" x="2" y="135" width="19" height="10"/>
+    <SubTexture name="sprite0009" x="2" y="135" width="19" height="10"/>
+    <SubTexture name="sprite0010" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0011" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0012" x="23" y="123" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+</TextureAtlas>
