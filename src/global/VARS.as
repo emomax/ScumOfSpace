@@ -1,7 +1,7 @@
 package global
 {
-	public interface VARS
+	public class VARS
 	{
-		
+		public static const airRes:Number = 0.9;
 	}
 }

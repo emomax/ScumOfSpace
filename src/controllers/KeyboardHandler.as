@@ -17,6 +17,8 @@ package controllers {
 		private var FIRE2:Boolean = false;
 		
 		public function KeyboardHandler(stageRef:Sprite) : void {
+			if (stageRef == null) throw new Error();
+			
 			this.stageRef = stageRef;
 			stageRef.addEventListener(KeyboardEvent.KEY_DOWN, downHandler);
 			stageRef.addEventListener(KeyboardEvent.KEY_UP, upHandler);
@@ -35,6 +37,7 @@ package controllers {
 				case 80:						break;	// P pressed
 				case 70:	fire1 	= true; 	break; 	// F pressed
 				case 71:	fire2 	= true; 	break; 	// G pressed
+				default: 						break;
 			}
 		}
 		
@@ -51,6 +54,7 @@ package controllers {
 				case 80:						break;	// P released
 				case 70:	fire1 	= false; 	break; 	// F released
 				case 71:	fire2 	= false; 	break; 	// G released
+				default: 						break;
 			}
 		}
 		
@@ -64,11 +68,11 @@ package controllers {
 			return DOWN;
 		}
 		
-		public function get left() : Boolean {
+		public function get right() : Boolean {
 			return RIGHT;
 		}
 		
-		public function get right() : Boolean {
+		public function get left() : Boolean {
 			return LEFT;
 		}
 		
@@ -90,11 +94,11 @@ package controllers {
 			DOWN = b;
 		}
 		
-		public function set left(b:Boolean) : void {
+		public function set right(b:Boolean) : void {
 			RIGHT = b;
 		}
 		
-		public function set right(b:Boolean) : void {
+		public function set left(b:Boolean) : void {
 			LEFT = b;
 		}
 		

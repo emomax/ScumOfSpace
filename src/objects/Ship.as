@@ -8,12 +8,12 @@ package objects
 	
 	public class Ship extends Sprite implements Aircraft
 	{
-		private var exhaustArt:MovieClip;
+		public var exhaustArt:MovieClip;
 		private var shipArt:Image;
 		
-		private var _velX:Number = 0;
-		private var _velY:Number = 0;
-		private var _maxVel:int = 6;
+		public var velY:Number = 0;
+		public var velX:Number = 0;
+		public var maxVel:int = 6;
 		private var _speed:Number = 0.5;
 		
 		public function Ship()
@@ -46,12 +46,17 @@ package objects
 			this.addChild(shipArt);
 		}
 		
-		public function get speed() : int {
+		// Getters
+		
+		public function get speed() : Number {
 			return _speed;	
 		}
 		
-		public function set speed(s:int) : void {
+		public function set speed(s:Number) : void {
 			_speed = s;
 		}
+		
+		public function primary() : void {}
+		public function secondary() : void {}
 	}
 }
