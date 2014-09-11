@@ -6,7 +6,7 @@ package
 	
 	import starling.core.Starling;
 	
-	[SWF(framerate="60", width="700", height="550", backgroundColor="0x000000")]
+	[SWF(frameRate="60", width="700", height="550", backgroundColor="0x000000")]
 	public class ScumOfSpace extends Sprite
 	{
 		private var starling:Starling;

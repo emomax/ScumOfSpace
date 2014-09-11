@@ -25,11 +25,12 @@ package controllers {
 		}
 		
 		private function downHandler (e:KeyboardEvent) : void {
+			trace(e.keyCode);
 			switch(e.keyCode) {
-				case Keyboard.RIGHT: 				// fall through
-				case 65:	right 	= true; 	break;	// D pressed
 				case Keyboard.LEFT: 				// fall through
-				case 68:	left 	= true; 	break;	// A pressed
+				case 65:	left 	= true; 	break;	// D pressed
+				case Keyboard.RIGHT: 				// fall through
+				case 68:	right 	= true; 	break;	// A pressed
 				case Keyboard.DOWN: 				// fall through
 				case 83:	down 	= true; 	break;	// S pressed
 				case Keyboard.UP: 					// fall through
@@ -43,10 +44,10 @@ package controllers {
 		
 		private function upHandler (e:KeyboardEvent) : void {
 			switch(e.keyCode) {
-				case Keyboard.RIGHT: 				// fall through
-				case 65:	right 	= false; 	break;	// D released
 				case Keyboard.LEFT: 				// fall through
-				case 68:	left 	= false; 	break;	// A released
+				case 65:	left 	= false; 	break;	// D released
+				case Keyboard.RIGHT: 				// fall through
+				case 68:	right 	= false; 	break;	// A released
 				case Keyboard.DOWN: 				// fall through
 				case 83:	down 	= false; 	break;	// S released
 				case Keyboard.UP: 					// fall through
