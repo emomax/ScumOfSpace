@@ -1,0 +1,10 @@
+**********************************
+* Captain's log - 2014.09.11 10:56
+**********************************
+
+	Some graphics have been added and I have started to understand the beauty of starling.
+	I have so far successfully exported a sprite sheet from Flash and managed to get it 
+	to animate nicely. I have also implemented an input handler which now works as intended.
+
+	Next I will play around some with movement of the aircraft to get a smooth feeling and 
+	nextly I'll add the first enemy - the Phaser. 

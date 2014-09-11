@@ -25,32 +25,32 @@ package controllers {
 		private function downHandler (e:KeyboardEvent) : void {
 			switch(e.keyCode) {
 				case Keyboard.RIGHT: 				// fall through
-				case 65:	right(true); 	break;	// D pressed
+				case 65:	right 	= true; 	break;	// D pressed
 				case Keyboard.LEFT: 				// fall through
-				case 68:	left(true); 	break;	// A pressed
+				case 68:	left 	= true; 	break;	// A pressed
 				case Keyboard.DOWN: 				// fall through
-				case 83:	down(true); 	break;	// S pressed
+				case 83:	down 	= true; 	break;	// S pressed
 				case Keyboard.UP: 					// fall through
-				case 87:	up(true); 		break;	// W pressed
-				case 80:					break;	// P pressed
-				case 70:	fire1(true); 	break; 	// F pressed
-				case 71:	fire2(true); 	break; 	// G pressed
+				case 87:	up 		= true; 	break;	// W pressed
+				case 80:						break;	// P pressed
+				case 70:	fire1 	= true; 	break; 	// F pressed
+				case 71:	fire2 	= true; 	break; 	// G pressed
 			}
 		}
 		
 		private function upHandler (e:KeyboardEvent) : void {
 			switch(e.keyCode) {
 				case Keyboard.RIGHT: 				// fall through
-				case 65:	right(false); 	break;	// D released
+				case 65:	right 	= false; 	break;	// D released
 				case Keyboard.LEFT: 				// fall through
-				case 68:	left(false); 	break;	// A released
+				case 68:	left 	= false; 	break;	// A released
 				case Keyboard.DOWN: 				// fall through
-				case 83:	down(false); 	break;	// S released
+				case 83:	down 	= false; 	break;	// S released
 				case Keyboard.UP: 					// fall through
-				case 87:	up(false); 		break;	// W released
-				case 80:					break;	// P released
-				case 70:	fire1(false); 	break; 	// F released
-				case 71:	fire2(false); 	break; 	// G released
+				case 87:	up 		= false; 	break;	// W released
+				case 80:						break;	// P released
+				case 70:	fire1 	= false; 	break; 	// F released
+				case 71:	fire2 	= false; 	break; 	// G released
 			}
 		}
 		
