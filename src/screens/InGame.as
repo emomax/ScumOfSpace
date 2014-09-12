@@ -11,11 +11,12 @@ package screens
 	import starling.display.Button;
 	import starling.display.Sprite;
 	import starling.events.Event;
-	import starling.events.KeyboardEvent;
 	import starling.utils.deg2rad;
 	
 	public class InGame extends Sprite
 	{
+		private var startBtn:Button;
+		
 		private var ship:Ship;
 		private var keyHandler:KeyboardHandler;
 		
@@ -25,40 +26,54 @@ package screens
 		
 		private var gameState:String;
 		
-		public function InGame()
-		{
+		public function InGame() {
 			super(); 
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		
-		private function onAddedToStage():void
-		{
+		private function onAddedToStage() : void {
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			init();
 			drawGame();
 			
-			this.addEventListener(Event.ENTER_FRAME, checkElapsed);
-			this.addEventListener(Event.ENTER_FRAME, gameLoop);
+			addEventListener(Event.TRIGGERED, onMouseDown);
 		}
 		
-		private function checkElapsed(e:Event):void
-		{
+		private function onMouseDown(e:Event):void {
+			switch (e.target as Button) {
+				case startBtn:
+					
+					gameState = "idle";
+					removeChild(startBtn, true);
+					
+					this.addEventListener(Event.ENTER_FRAME, checkElapsed);
+					this.addEventListener(Event.ENTER_FRAME, gameLoop);
+					break;
+				default:
+					throw new Error("Item clicked was unknown.");
+			}
+				
+		}
+		
+		private function checkElapsed(e:Event) : void {
 			timePrevious = timeCurrent;
 			timeCurrent = getTimer();
 			elapsed = (timeCurrent - timePrevious);
-			trace (elapsed);
 		}
 		
 		private function init() : void {
 			keyHandler = new KeyboardHandler(this);
+			startBtn = new Button(Assets.getAtlas().getTexture("startGameBtn"), "", Assets.getAtlas().getTexture("startGameBtnDown"));
 		}
 		
-		private function drawGame():void
-		{
+		private function drawGame():void {
+			startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
+			startBtn.y = stage.stageHeight / 4;
+			addChild(startBtn);
+			
 			ship = new Ship();
 			ship.x = stage.stageWidth + ship.width + 120;
 			ship.y = stage.stageHeight * 0.5;
-			gameState = "idle";
 			addChild(ship);
 		}
 		
