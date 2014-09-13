@@ -6,18 +6,22 @@ package objects
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
-	public class Ship extends Sprite implements Aircraft
+	public class Ship extends Sprite 
 	{
 		public var exhaustArt:MovieClip;
 		private var shipArt:Image;
+		protected var stageRef:Sprite;
 		
 		public var velY:Number = 0;
 		public var velX:Number = 0;
 		public var maxVel:int = 6;
 		private var _speed:Number = 0.5;
 		
-		public function Ship()
+		protected var _HP:int;
+		
+		public function Ship(s:Sprite)
 		{
+			this.stageRef = s;
 			super();
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 		}

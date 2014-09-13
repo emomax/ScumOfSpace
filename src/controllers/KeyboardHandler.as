@@ -25,7 +25,6 @@ package controllers {
 		}
 		
 		private function downHandler (e:KeyboardEvent) : void {
-			trace(e.keyCode);
 			switch(e.keyCode) {
 				case Keyboard.LEFT: 				// fall through
 				case 65:	left 	= true; 	break;	// D pressed

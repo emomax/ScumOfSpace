@@ -15,6 +15,15 @@ package
 		private static var sTextures:Dictionary = new Dictionary();
 		private static var sTextureAtlas:TextureAtlas;
 		
+		[Embed(source="../media/graphics/spaceBackground.png")]
+		public static const Background:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground.png")]
+		public static const Foreground:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground2.png")]
+		public static const Foreground2:Class;
+		
 		[Embed(source="../media/graphics/atlas.png")]
 		public static const AtlasTextureGame:Class;
 		

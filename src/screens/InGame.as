@@ -4,11 +4,16 @@ package screens
 	
 	import controllers.KeyboardHandler;
 	
+	import feathers.controls.Button;
+	
 	import global.VARS;
 	
+	import objects.Blackbird;
+	import objects.IngameBackground;
 	import objects.Ship;
+	import objects.Laser;
 	
-	import starling.display.Button;
+	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.utils.deg2rad;
@@ -16,8 +21,8 @@ package screens
 	public class InGame extends Sprite
 	{
 		private var startBtn:Button;
-		
-		private var ship:Ship;
+		private var player:Ship;
+		private var bg:IngameBackground;
 		private var keyHandler:KeyboardHandler;
 		
 		private var timePrevious:Number;
@@ -36,11 +41,11 @@ package screens
 			init();
 			drawGame();
 			
-			addEventListener(Event.TRIGGERED, onMouseDown);
+			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
 		}
 		
 		private function onMouseDown(e:Event):void {
-			switch (e.target as Button) {
+			switch (e.currentTarget) {
 				case startBtn:
 					
 					gameState = "idle";
@@ -63,41 +68,53 @@ package screens
 		
 		private function init() : void {
 			keyHandler = new KeyboardHandler(this);
-			startBtn = new Button(Assets.getAtlas().getTexture("startGameBtn"), "", Assets.getAtlas().getTexture("startGameBtnDown"));
+			startBtn = new Button(); // DEPR APPROACH - STARLING BUTTON: Assets.getAtlas().getTexture("startGameBtn"), "", Assets.getAtlas().getTexture("startGameBtnDown"));
+			startBtn.defaultSkin = new Image(Assets.getAtlas().getTexture("startGameBtn"));
+			startBtn.downSkin = new Image(Assets.getAtlas().getTexture("startGameBtnDown"));
+			startBtn.hoverSkin = new Image(Assets.getAtlas().getTexture("startGameBtnOver"));
+			startBtn.label = "This button starts the game!";
+			
+			bg = new IngameBackground(this);
 		}
 		
 		private function drawGame():void {
-			startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
-			startBtn.y = stage.stageHeight / 4;
+			addChild(bg);
 			addChild(startBtn);
+			// Feather buttons do not have a width until they have been drawn. 
+			// Use .validate() to precalculate width for positioning before
+			// next draw call.
+			startBtn.validate();
+			startBtn.y = stage.stageHeight / 4;
+			startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
 			
-			ship = new Ship();
-			ship.x = stage.stageWidth + ship.width + 120;
-			ship.y = stage.stageHeight * 0.5;
-			addChild(ship);
+			
+			player = new Blackbird(this);
+			player.x = stage.stageWidth + player.width + 120;
+			player.y = stage.stageHeight * 0.5;
+			addChild(player);
 		}
 		
 		private function gameLoop(e:Event) : void {
 			switch (gameState) {
 				case "idle":
-					if (ship.x > stage.stageWidth - ship.width) {
-						ship.velX -= ship.speed;
+					if (player.x > stage.stageWidth - player.width) {
+						player.velX -= player.speed;
 						
-						if(Math.abs(ship.velY) > ship.maxVel) ship.velY = (Math.abs(ship.velY) / ship.velY) * ship.maxVel; 	// |velY| / velY -> 1 or -1
-						if(Math.abs(ship.velX) > ship.maxVel) ship.velX = (Math.abs(ship.velX) / ship.velX) * ship.maxVel;	// |velX| / velX -> 1 or -1
+						if(Math.abs(player.velY) > player.maxVel) player.velY = (Math.abs(player.velY) / player.velY) * player.maxVel; 	// |velY| / velY -> 1 or -1
+						if(Math.abs(player.velX) > player.maxVel) player.velX = (Math.abs(player.velX) / player.velX) * player.maxVel;	// |velX| / velX -> 1 or -1
 						
-						ship.velX *= global.VARS.airRes;
-						ship.velY *= global.VARS.airRes;
+						player.velX *= global.VARS.airRes;
+						player.velY *= global.VARS.airRes;
 						
-						ship.x += ship.velX;
+						player.x += player.velX;
 						
-						if(ship.velX < 4) {
-							ship.rotation = starling.utils.deg2rad(2 * ship.velX);
-							ship.exhaustArt.rotation = starling.utils.deg2rad(2 * -ship.velX);
+						if(player.velX < 4) {
+							player.rotation = starling.utils.deg2rad(2 * player.velX);
+							player.exhaustArt.rotation = starling.utils.deg2rad(2 * -player.velX);
 						}
 						else {
-							ship.rotation = starling.utils.deg2rad(2 * 4 * (Math.abs(ship.velX) / ship.velX));
-							ship.exhaustArt.rotation = starling.utils.deg2rad(2 * 4 * -(Math.abs(ship.velX) / ship.velX));
+							player.rotation = starling.utils.deg2rad(2 * 4 * (Math.abs(player.velX) / player.velX));
+							player.exhaustArt.rotation = starling.utils.deg2rad(2 * 4 * -(Math.abs(player.velX) / player.velX));
 						}
 					}
 					else {
@@ -106,37 +123,37 @@ package screens
 					break;
 				
 				case "play":
-					if(keyHandler.up) ship.velY -= ship.speed;
-					if(keyHandler.down) ship.velY += ship.speed;
-					if(keyHandler.left) ship.velX -= ship.speed;
-					if(keyHandler.right) ship.velX += ship.speed;
+					if(keyHandler.up) player.velY -= player.speed;
+					if(keyHandler.down) player.velY += player.speed;
+					if(keyHandler.left) player.velX -= player.speed;
+					if(keyHandler.right) player.velX += player.speed;
 					
-					if(Math.abs(ship.velY) > ship.maxVel) ship.velY = (Math.abs(ship.velY) / ship.velY) * ship.maxVel; 	// |velY| / velY -> 1 or -1
-					if(Math.abs(ship.velX) > ship.maxVel) ship.velX = (Math.abs(ship.velX) / ship.velX) * ship.maxVel;	// |velX| / velX -> 1 or -1
+					if(Math.abs(player.velY) > player.maxVel) player.velY = (Math.abs(player.velY) / player.velY) * player.maxVel; 	// |velY| / velY -> 1 or -1
+					if(Math.abs(player.velX) > player.maxVel) player.velX = (Math.abs(player.velX) / player.velX) * player.maxVel;	// |velX| / velX -> 1 or -1
 					
-					ship.velX *= global.VARS.airRes;
-					ship.velY *= global.VARS.airRes;
+					player.velX *= global.VARS.airRes;
+					player.velY *= global.VARS.airRes;
 					
-					if(Math.round(ship.velX*10) == 0) ship.velX = 0;
-					if(Math.round(ship.velY*10) == 0) ship.velY = 0;
+					if(Math.round(player.velX*10) == 0) player.velX = 0;
+					if(Math.round(player.velY*10) == 0) player.velY = 0;
 					
-					ship.x += ship.velX;
-					ship.y += ship.velY;
+					player.x += player.velX;
+					player.y += player.velY;
 					
-					if(ship.velX < 4) {
-						ship.rotation = starling.utils.deg2rad(2 * ship.velX);
-						ship.exhaustArt.rotation = starling.utils.deg2rad(2 * -ship.velX);
+					if(player.velX < 4) {
+						player.rotation = starling.utils.deg2rad(2 * player.velX);
+						player.exhaustArt.rotation = starling.utils.deg2rad(2 * -player.velX);
 					}
 					else {
-						ship.rotation = starling.utils.deg2rad(2 * 4 * (Math.abs(ship.velX) / ship.velX));
-						ship.exhaustArt.rotation = starling.utils.deg2rad(2 * 4 * -(Math.abs(ship.velX) / ship.velX));
+						player.rotation = starling.utils.deg2rad(2 * 4 * (Math.abs(player.velX) / player.velX));
+						player.exhaustArt.rotation = starling.utils.deg2rad(2 * 4 * -(Math.abs(player.velX) / player.velX));
 					}
 					
-					ship.exhaustArt.scaleX = -(ship.velX / ship.maxVel) + 1;
+					player.exhaustArt.scaleX = -(player.velX / player.maxVel) + 1;
 					
 					// Handle weaponry
-					if(keyHandler.fire1) ship.primary();
-					if(keyHandler.fire2) ship.secondary();
+					if(keyHandler.fire1) player.primary();
+					if(keyHandler.fire2) player.secondary();
 					
 					break;
 				default: 
