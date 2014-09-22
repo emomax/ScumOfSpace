@@ -1,11 +1,14 @@
 package objects
 {
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.utils.Timer;
 	
 	import objects.MuzzleFlash;
 	
+	import starling.display.MovieClip;
 	import starling.display.Sprite;
+	import starling.events.Event;
 
 	public class Blackbird extends Ship implements PrimaryWeapon, SecondaryWeapon
 	{
@@ -21,10 +24,13 @@ package objects
 		private var _firePowerPrimary:int;
 		private var _firePowerSecondary:int;
 		
+		private var _exhaustArt:MovieClip;
 		
 		public function Blackbird(stageRef:Sprite,  HP:int = 100, firePower:int = 12, fireSpeed:Number = 100) : void
 		{
 			super(stageRef);
+			
+			direction = -1;
 			
 			_HP = HP;
 			
@@ -40,11 +46,23 @@ package objects
 			
 			canFirePrimary = true;
 			canFireSecondary = true;
+		}
+		
+		override protected function onAddedToStage(e:Event):void {
+			this.createShipArt("blackbird");
 			
+			_exhaustArt = this.createExhaustArt(new Point(shipArt.width / 3, - shipArt.height / 5));
+			
+			this._boundingbox = this.bounds;
+			
+			this.showBoundingBox();
 			
 			fireTimerPrimary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerPrimary.stop(); canFirePrimary = true; });
 			fireTimerSecondary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerSecondary.stop(); canFireSecondary = true; });
 		}
+		
+		public function get exhaustArt() : MovieClip { return _exhaustArt; }
+		public function getWeaponDistance() : int { return 10; }
 		
 		override public function primary() : void {
 			if (canFirePrimary) {
@@ -71,12 +89,17 @@ package objects
 		}
 		
 		public function fire() : void {
-			this.addChild(new MuzzleFlash(this));
-			var l:Laser = new Laser(stageRef);			
+			var m:MuzzleFlash = new MuzzleFlash(this);
+			var l:Laser = new Laser(stageRef, this, -1, firePowerPrimary);			
 			l.scaleX = -1;
 			l.x = this.x + 23;
 			l.y = this.y - 21;
 			
+			m.scaleX = -1;
+			m.x = -23;
+			m.y = -13;
+			
+			this.addChild(m);
 			stageRef.addChild(l);
 		}
 		

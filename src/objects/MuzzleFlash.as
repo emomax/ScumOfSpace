@@ -15,10 +15,7 @@ package objects
 		
 		public function MuzzleFlash(s:Sprite)
 		{	
-			art = new Image(Assets.getAtlas().getTexture("muzzleFlash_000"+(Math.round(Math.random()) + 1)));			
-			art.scaleX = -1;
-			art.x = -22;
-			art.y = -13;
+			art = new Image(Assets.getAtlas().getTexture("muzzleFlash_000"+(Math.round(Math.random()) + 1)));
 			
 			super();
 			

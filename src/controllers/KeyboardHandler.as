@@ -3,6 +3,7 @@ package controllers {
 	
 	import starling.display.Sprite;
 	import starling.events.KeyboardEvent;
+	import screens.InGame;
 
 	public class KeyboardHandler {
 		private var stageRef:Sprite;
@@ -34,7 +35,7 @@ package controllers {
 				case 83:	down 	= true; 	break;	// S pressed
 				case Keyboard.UP: 					// fall through
 				case 87:	up 		= true; 	break;	// W pressed
-				case 80:						break;	// P pressed
+				case 80:	InGame.showBoxes();	break;	// P pressed
 				case 70:	fire1 	= true; 	break; 	// F pressed
 				case 71:	fire2 	= true; 	break; 	// G pressed
 				default: 						break;

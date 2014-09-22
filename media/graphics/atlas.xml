@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
-<!-- $TexturePacker:SmartUpdate:3d0b3d1cce431355de28aa54afdccca9:6b095b44bde32e515f9fbc4b8516cce1:cde709370900f12288f3449eded86f07$ -->
+<!-- $TexturePacker:SmartUpdate:61fb3cd027c086a231460ca53bd371d7:867d489487405cc281bd83d08f5fa6a6:cde709370900f12288f3449eded86f07$ -->
 <TextureAtlas imagePath="atlas.png">
-    <SubTexture name="blackbird" x="2" y="2" width="49" height="119"/>
-    <SubTexture name="laser_1" x="53" y="2" width="28" height="5" frameX="-50" frameY="-12" frameWidth="78" frameHeight="17"/>
-    <SubTexture name="muzzleFlash_0001" x="83" y="2" width="12" height="14"/>
-    <SubTexture name="muzzleFlash_0002" x="97" y="2" width="10" height="12" frameX="0" frameY="0" frameWidth="12" frameHeight="14"/>
-    <SubTexture name="phaser" x="109" y="2" width="39" height="35" frameX="-6" frameY="0" frameWidth="45" frameHeight="35"/>
-    <SubTexture name="sprite0001" x="150" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0002" x="150" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0003" x="150" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0004" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="sprite0005" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="sprite0006" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="sprite0007" x="190" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0008" x="190" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0009" x="190" y="2" width="19" height="10"/>
-    <SubTexture name="sprite0010" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="sprite0011" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="sprite0012" x="171" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
-    <SubTexture name="startGameBtn" x="211" y="2" width="250" height="52"/>
-    <SubTexture name="startGameBtnDown" x="463" y="2" width="250" height="52"/>
-    <SubTexture name="startGameBtnOver" x="715" y="2" width="250" height="52"/>
+    <SubTexture name="blackbird" x="254" y="133" width="49" height="119"/>
+    <SubTexture name="gameOver" x="2" y="39" width="436" height="38" frameX="0" frameY="0" frameWidth="438" frameHeight="38"/>
+    <SubTexture name="laser_1" x="2" y="2" width="28" height="5" frameX="-50" frameY="-12" frameWidth="78" frameHeight="17"/>
+    <SubTexture name="muzzleFlash_0001" x="105" y="2" width="12" height="14"/>
+    <SubTexture name="muzzleFlash_0002" x="93" y="2" width="10" height="12" frameX="0" frameY="0" frameWidth="12" frameHeight="14"/>
+    <SubTexture name="phaser" x="119" y="2" width="39" height="35" frameX="-6" frameY="0" frameWidth="45" frameHeight="35"/>
+    <SubTexture name="shieldHit" x="305" y="133" width="144" height="121" frameX="0" frameY="0" frameWidth="154" frameHeight="121"/>
+    <SubTexture name="sprite0001" x="51" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0002" x="51" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0003" x="51" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0004" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0005" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0006" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0007" x="72" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0008" x="72" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0009" x="72" y="2" width="19" height="10"/>
+    <SubTexture name="sprite0010" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0011" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="sprite0012" x="32" y="2" width="17" height="8" frameX="0" frameY="-2" frameWidth="19" frameHeight="10"/>
+    <SubTexture name="startGameBtn" x="254" y="79" width="250" height="52"/>
+    <SubTexture name="startGameBtnDown" x="2" y="133" width="250" height="52"/>
+    <SubTexture name="startGameBtnOver" x="2" y="79" width="250" height="52"/>
 </TextureAtlas>
