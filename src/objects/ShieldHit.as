@@ -4,6 +4,8 @@ package objects
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
+	//import debugger.Debug;
+	
 	public class ShieldHit extends Sprite {
 		
 		private var art:Image = new Image(Assets.getAtlas().getTexture("shieldHit"));
@@ -11,7 +13,7 @@ package objects
 		private var stageRef:Sprite;
 		
 		public function ShieldHit(s:Sprite) : void { 
-			trace("Shield was hit! Time to shine!");
+			//Debug.INFO("Shield was hit! Time to shine!", this);
 			
 			this.stageRef = s;
 			

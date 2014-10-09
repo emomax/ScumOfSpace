@@ -4,6 +4,7 @@ package objects
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	
+	import debugger.Debug;
 	import global.VARS;
 	
 	import objects.AI;
@@ -16,21 +17,19 @@ package objects
 	{
 		private var art:Image = new Image(Assets.getAtlas().getTexture("phaser"));
 		
-		public var playerRef:Blackbird;
+		public var _playerRef:Ship;
 		
 		private var _fireSpeed:Number;
 		private var _fireTimer:Timer;
 		private var _firePower:int
 		private var _canFire:Boolean;
 		
-		public function Phaser(s:Sprite, p:Blackbird) {
+		public function Phaser(s:Sprite, p:Ship) {
 			super(s);
 			this._HP = 100;
 			speed = 0.4;
 			
-			playerRef = p;
-			
-			trace(p);
+			_playerRef = p;
 			
 			// PHASER SPECIFIC ATTRIBUTES
 			fireSpeedPrimary = 600;
@@ -52,14 +51,15 @@ package objects
 			direction = 1;
 		}
 		
-		public function init() : void {
+		override public function init() : void {
 			// Init the Phaser!
+			Debug.INFO("I am initiated!", this);
 			addEventListener(Event.ENTER_FRAME, behaviourLoop);
 		}
 		
 		public function behaviourLoop(e:Event) : void {
 			// Do stuff;
-			if (!playerRef) {
+			if (!_playerRef) {
 				this.removeEventListener(Event.ENTER_FRAME, behaviourLoop);
 				return;
 			}
@@ -75,8 +75,8 @@ package objects
 		
 		public function copyPlayerMoves() : void
 		{	
-			if(Math.abs(playerRef.y + Math.round(playerRef.getWeaponDistance()) - this.y) > 5) {
-				this.velY = (playerRef.y + Math.round(playerRef.getWeaponDistance()) < this.y) ? velY - speed : velY + speed;
+			if(Math.abs(_playerRef.y + Math.round(_playerRef.getWeaponDistance().y) - this.y) > 5) {
+				this.velY = (_playerRef.y + Math.round(_playerRef.getWeaponDistance().y) < this.y) ? velY - speed : velY + speed;
 			}
 			else {
 				primary();
@@ -122,12 +122,12 @@ package objects
 		public function set firePowerPrimary(i:int):void { _firePower = i; }
 		
 		// Interface ENEMY
-		public function get target() : Blackbird { return playerRef; }
-		public function set target(s:Blackbird) : void { playerRef = s }
+		public function get target() : Ship { return _playerRef; }
+		public function set target(s:Ship) : void { _playerRef = s }
 		
 		public function clean() : void {
 			removeEventListener(Event.ENTER_FRAME, behaviourLoop);
-			playerRef = null;
+			_playerRef = null;
 		}
 	}
 }

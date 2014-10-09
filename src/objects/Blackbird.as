@@ -46,6 +46,9 @@ package objects
 			
 			canFirePrimary = true;
 			canFireSecondary = true;
+			
+			_weaponDistance = new Point(23, 13);
+			rotatable = true;
 		}
 		
 		override protected function onAddedToStage(e:Event):void {
@@ -53,7 +56,7 @@ package objects
 			
 			_exhaustArt = this.createExhaustArt(new Point(shipArt.width / 3, - shipArt.height / 5));
 			
-			this._boundingbox = this.bounds;
+			this._boundingbox = shipArt.bounds;
 			
 			this.showBoundingBox();
 			
@@ -62,7 +65,6 @@ package objects
 		}
 		
 		public function get exhaustArt() : MovieClip { return _exhaustArt; }
-		public function getWeaponDistance() : int { return 10; }
 		
 		override public function primary() : void {
 			if (canFirePrimary) {
@@ -92,12 +94,12 @@ package objects
 			var m:MuzzleFlash = new MuzzleFlash(this);
 			var l:Laser = new Laser(stageRef, this, -1, firePowerPrimary);			
 			l.scaleX = -1;
-			l.x = this.x + 23;
-			l.y = this.y - 21;
+			l.x = this.x + getWeaponDistance().x;
+			l.y = this.y - getWeaponDistance().y - 10;
 			
+			m.x = -getWeaponDistance().x;
+			m.y = -getWeaponDistance().y;
 			m.scaleX = -1;
-			m.x = -23;
-			m.y = -13;
 			
 			this.addChild(m);
 			stageRef.addChild(l);

@@ -1,9 +1,17 @@
 package objects
 {
+	import com.freeactionscript.effects.explosion.AbstractExplosion;
+	import com.freeactionscript.effects.explosion.LargeExplosion;
+	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.media.Sound;
+	
+	import debugger.Debug;
 	
 	import geometry.DrawRect;
+	
+	import global.VARS;
 	
 	import screens.InGame;
 	
@@ -18,6 +26,7 @@ package objects
 		protected var shipArt:Image;
 		protected var stageRef:Sprite;
 		public var lines:DrawRect;
+		protected var _weaponDistance:Point = new Point(0,0);
 		
 		public var direction:int;
 		
@@ -27,12 +36,19 @@ package objects
 		protected var _boundingbox:Rectangle;
 		private var _speed:Number = 0.5;
 		
+		private var _width:int;
+		
 		protected var _HP:int;
+		
+		public var rotatable:Boolean = false;
+		
+		private var explosionSound:Sound = new Assets.ExplosionSound();
 		
 		public function Ship(s:Sprite)
 		{
 			this.stageRef = s;
 			super();
+			this.setWidth(this.width);
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		
@@ -45,21 +61,29 @@ package objects
 		
 		protected function showBoundingBox() : void {
 			lines = new DrawRect(this.boundingbox);
-			lines.x = -boundingbox.width / 2;
-			lines.y = -boundingbox.height / 2;
+			lines.x -= boundingbox.width / 2;
+			lines.y -= boundingbox.height / 2;
 			addChild(lines);
+			
+			toggleBox(VARS.showBoundingBoxes);
 		}
 		
 		protected function createShipArt(a:String):void
 		{
 			// Create ship art
 			shipArt = new Image(Assets.getAtlas().getTexture(a));
-			shipArt.x = Math.ceil(-shipArt.width / 2);
-			shipArt.y = Math.ceil(-shipArt.height / 2);
+			shipArt.alignPivot();
 			
 			// Add it
 			this.addChild(shipArt);
+			
 		}
+		
+		public function init() : void {
+			
+		}
+		
+		public function getWeaponDistance() : Point { return _weaponDistance; }
 		
 		protected function createExhaustArt(offset:Point, dir:int = 1) : MovieClip {
 			var exhaustArt:MovieClip;
@@ -73,6 +97,14 @@ package objects
 			
 			addChild(exhaustArt);
 			return exhaustArt;
+		}
+		
+		public function getWidth() : int {
+			return _width;
+		}
+		
+		public function setWidth(i:int) : void {
+			_width = i;
 		}
 		
 		public function toggleBox(b:Boolean) : void {
@@ -104,10 +136,11 @@ package objects
 		public function takeDmg(dmg:int) : Boolean {
 			this._HP -= dmg;
 			
-			trace(this._HP + " hp left.");
+			Debug.INFO(this._HP + " hp left.", this);
 			
 			if (this._HP <= 0) {
 				this.destroy();
+				Debug.INFO("Aaargh! I died!", this); 
 				return true;
 			}
 			
@@ -116,7 +149,12 @@ package objects
 		
 		private function destroy() : void {
 			InGame.ships.splice(InGame.ships.indexOf(this), 1);
+			
+			var expl:AbstractExplosion = new LargeExplosion(stageRef);
+			expl.create(this.x - this.width / 2, this.y);
+			
 			stageRef.removeChild(this, true);
+			explosionSound.play();
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package objects
 {
+	import flash.geom.Point;
+	
 	import screens.InGame;
 	
 	import starling.display.Image;
@@ -10,7 +12,7 @@ package objects
 	{
 		private var art:Image;
 		private var stageRef:Sprite;
-		private var velocity:int;
+		private var velocity:Point;
 		private var speed:int = 15;
 		private var scatterY:Number = (Math.random() > 0.5) ? Math.round(Math.random() * 0.8) : -Math.round(Math.random() * 0.8);
 		private var dmg:int;
@@ -19,10 +21,21 @@ package objects
 		
 		private var yDiff:Number;
 		
-		public function Laser(s:Sprite, _gunman:Ship, dir:int = -1, _dmg:int = 10)
+		public function Laser(s:Sprite, _gunman:Ship, dir:int = -1, _dmg:int = 10, vel:Point = null) : void
 		{
 			this.gunman = _gunman;
 			this.dmg = _dmg;
+			
+			if (vel == null) {
+				velocity = new Point();
+				velocity.x = speed * dir; 
+				velocity.y = 0;
+			} else {
+				velocity = vel;
+				velocity.x *= speed;
+				velocity.y *= speed;
+				scatterY = 0;
+			}
 			
 			super();
 			
@@ -31,14 +44,13 @@ package objects
 			art = new Image(Assets.getAtlas().getTexture("laser_1"));
 			stageRef = s;
 			
-			velocity = speed * dir;
 			addChild(art);
 			addEventListener(Event.ENTER_FRAME, laserLoop);
 		}
 		
 		private function laserLoop (e:Event) : void {
-			this.x += velocity;
-			this.y += scatterY;
+			this.x += velocity.x;
+			this.y += velocity.y + scatterY;
 			
 			if (this.x < -this.width || this.x > 700) {
 				this.destroy();
@@ -50,12 +62,13 @@ package objects
 		public function destroy() : void {
 			if (stageRef.contains(InGame.bullets[InGame.bullets.indexOf(this)])) {
 				InGame.bullets.splice(InGame.bullets.indexOf(this), 1);
+				
+				removeEventListener(Event.ENTER_FRAME, laserLoop);
+				stageRef.removeChild(this, true);
 				//trace("This bullet exists in bullets[]! Remove me!");
 			}
 			
 			//trace("Destroyed laser");
-			removeEventListener(Event.ENTER_FRAME, laserLoop);
-			stageRef.removeChild(this, true);
 		}
 	}
 }

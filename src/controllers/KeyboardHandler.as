@@ -1,9 +1,10 @@
 package controllers {
 	import flash.ui.Keyboard;
 	
+	import screens.InGame;
+	
 	import starling.display.Sprite;
 	import starling.events.KeyboardEvent;
-	import screens.InGame;
 
 	public class KeyboardHandler {
 		private var stageRef:Sprite;
@@ -36,8 +37,9 @@ package controllers {
 				case Keyboard.UP: 					// fall through
 				case 87:	up 		= true; 	break;	// W pressed
 				case 80:	InGame.showBoxes();	break;	// P pressed
-				case 70:	fire1 	= true; 	break; 	// F pressed
+				case Keyboard.SPACE:	fire1 	= true; 	break; 	// SPACE pressed
 				case 71:	fire2 	= true; 	break; 	// G pressed
+				case 78:	(stageRef as InGame).next();	break;	// N pressed
 				default: 						break;
 			}
 		}
@@ -53,7 +55,7 @@ package controllers {
 				case Keyboard.UP: 					// fall through
 				case 87:	up 		= false; 	break;	// W released
 				case 80:						break;	// P released
-				case 70:	fire1 	= false; 	break; 	// F released
+				case Keyboard.SPACE:	fire1 	= false; 	break; 	// SPACE released
 				case 71:	fire2 	= false; 	break; 	// G released
 				default: 						break;
 			}
