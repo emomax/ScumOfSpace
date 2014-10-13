@@ -229,16 +229,13 @@ package utils {
 			tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
 			starling.core.Starling.juggler.add(tween);
 			
-			
-			//Tweener.addTween(this, { y:550, alpha:1, time: 1, onComplete:remove }) ;
 			removeEventListener(KeyboardEvent.KEY_DOWN, endDialogue);
 			removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 			_currentTextBlockIndex = 0;
 			txt.text = "";
-			showIcon("UA");//this.charIcon.gotoAndStop("UA");
+			showIcon("UA");
 			Debug.INFO("endDialogue now!", this);
 			stageRef.dispatchEvent(new Event("conversationOver"));
-			//this.parent.removeChild(this, true);
 		}
 	}
 }

@@ -60,7 +60,7 @@ package objects
 		}
 		
 		protected function showBoundingBox() : void {
-			lines = new DrawRect(this.boundingbox);
+			lines = new DrawRect(new Rectangle(0, 0, this.boundingbox.width, this.boundingbox.height));
 			lines.x -= boundingbox.width / 2;
 			lines.y -= boundingbox.height / 2;
 			addChild(lines);

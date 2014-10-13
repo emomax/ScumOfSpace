@@ -1,8 +1,7 @@
-package screens
+package objects
 {
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
-	import flash.text.engine.BreakOpportunity;
 	import flash.utils.Timer;
 	
 	import debugger.Debug;
@@ -49,11 +48,13 @@ package screens
 		{
 			Debug.INFO("I AM ALIVE!", this);
 			super(s);
-			this._HP = 5000;
+			this._HP = 2000;
 			this.moves.push("homeAndKill");
 			this.moves.push("tripleBurst");
 			
 			bossState = "idle";
+			
+			firePowerPrimary = 20;
 			
 			actionTimer = new Timer(3000, 1);
 			actionTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void {

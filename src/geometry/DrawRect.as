@@ -19,7 +19,11 @@ package geometry
 			var bmd:flash.display.BitmapData = new flash.display.BitmapData(rect.width, rect.height, true, 0x000000);
 			bmd.draw(rect);
 			
-			addChild( new starling.display.Image(Texture.fromBitmapData(bmd, false, false)));
+			var img:Image = new starling.display.Image(Texture.fromBitmapData(bmd, false, false))
+			
+			img.x = r.x;
+			img.y = r.y;
+			addChild(img);
 		}
 	}
 }

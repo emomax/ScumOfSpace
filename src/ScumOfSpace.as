@@ -1,8 +1,7 @@
 package
 {
 	import flash.display.Sprite;
-	
-	import screens.InGame;
+	import screens.*;
 	
 	import starling.core.Starling;
 	
@@ -13,7 +12,7 @@ package
 		
 		public function ScumOfSpace()
 		{
-			starling = new Starling(screens.InGame, stage);
+			starling = new Starling(screens.Game, stage);
 			starling.core.Starling.current.showStats = true;
 			starling.start();
 		}

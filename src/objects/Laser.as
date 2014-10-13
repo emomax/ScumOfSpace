@@ -1,21 +1,28 @@
 package objects
 {
 	import flash.geom.Point;
+	import flash.geom.Rectangle
 	
+		import debugger.Debug;
+		
 	import screens.InGame;
 	
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import geometry.DrawRect;
 	
 	public class Laser extends Sprite
 	{
 		private var art:Image;
 		private var stageRef:Sprite;
-		private var velocity:Point;
-		private var speed:int = 15;
+		public var velocity:Point;
+		public var dir:int;
 		private var scatterY:Number = (Math.random() > 0.5) ? Math.round(Math.random() * 0.8) : -Math.round(Math.random() * 0.8);
+		private var speed:int = 15;
 		private var dmg:int;
+		
+		public var hitBox:Rectangle;
 		
 		public var gunman:Ship;
 		
@@ -23,6 +30,7 @@ package objects
 		
 		public function Laser(s:Sprite, _gunman:Ship, dir:int = -1, _dmg:int = 10, vel:Point = null) : void
 		{
+			this.dir = dir;
 			this.gunman = _gunman;
 			this.dmg = _dmg;
 			
@@ -45,6 +53,11 @@ package objects
 			stageRef = s;
 			
 			addChild(art);
+			
+			hitBox = this.bounds;
+			
+			// Uncomment this to see bounding box
+			//addChild(new DrawRect(hitBox));
 			addEventListener(Event.ENTER_FRAME, laserLoop);
 		}
 		

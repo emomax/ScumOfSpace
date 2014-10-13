@@ -7,6 +7,9 @@ package screens
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import flash.utils.getTimer;
+	import flash.geom.Rectangle;
+	
+	import events.NavigationEvent;
 	
 	import controllers.KeyboardHandler;
 	
@@ -25,11 +28,9 @@ package screens
 	import objects.ShieldHit;
 	import objects.Ship;
 	import objects.Sparrow;
+	import objects.Screecher;
 	import objects.Target;
 	
-	import starling.animation.Transitions;
-	import starling.animation.Tween;
-	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -99,11 +100,11 @@ package screens
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			init();
 			drawGame();
+			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
 			
 			xMax = stage.stageWidth - 100;
 			yMax = stage.stageHeight - 100;
 			
-			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
 		}
 		
 		// Handle clicks
@@ -112,10 +113,19 @@ package screens
 				case startBtn:
 					if (_gameState == "over" && this.contains(GO)) {
 						removeChild(GO);
-						drawStart(true);
+						//drawStart(true);
 						retargetEnemies();
 					}
 					
+					for (var i:int = 0; i < ships.length; ++i) {
+						if (stage.contains(ships[i])) 
+							removeChild(ships[i], true);
+						
+						ships.splice(i, 1);
+					}
+					
+					ships.push(player);
+					addChild(player);
 					gameState = "idle";
 					startBtn.removeEventListener(Event.TRIGGERED, onMouseDown);
 					removeChild(startBtn, true);
@@ -200,7 +210,7 @@ package screens
 					mike.rotation = 0;
 					mike.velX = 0;
 					mike.velY = 0;
-					gameState = "mike_enters"; 
+					gameState = "mike_enters";
 					break;
 				case 4: 
 					startConvo();
@@ -319,6 +329,7 @@ package screens
 							
 							addEventListener(Event.ENTER_FRAME, function(e:Event) : void {
 								if (l.bounds.intersects(mike.boundingbox)) {
+									ships.push(mike);
 									mike.takeDmg(l.power);
 									l.destroy();
 									
@@ -338,6 +349,15 @@ package screens
 					(boss as Screecher).engage();
 					currObjective = "ua";
 					gameState = "play";
+					Debug.INFO(Debug.formatArray(ships), this);
+					Debug.INFO(Debug.formatArray(bullets), this);
+					
+					var gameWon:Function;
+					this.addEventListener("enemyDown", gameWon = function (e:Event) : void {
+						gameState = "bossExplode";
+						this.removeEventListener("enemyDown", gameWon);
+						this.dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "level_completed"}, true));
+					});
 					break;
 				default: break;
 			}
@@ -370,6 +390,9 @@ package screens
 			startBtn.downSkin = new Image(Assets.getAtlas().getTexture("startGameBtnDown"));
 			startBtn.hoverSkin = new Image(Assets.getAtlas().getTexture("startGameBtnOver"));
 			startBtn.label = "This button starts the game!";
+			
+			VARS.currProgress = -1;
+			VARS.storyProgress = 0;
 			
 			_explosion = new LargeExplosion(this);
 			
@@ -608,7 +631,8 @@ package screens
 					}
 					
 					boss.x += 1;
-				
+				case "bossExplode":
+					// fall through
 				case "over":
 					
 					break;
@@ -618,7 +642,6 @@ package screens
 		}
 		
 		private function checkObjective() : Boolean {
-			
 			switch (currObjective) {
 				case "killCount":
 					if (killCount == targetCount) {
@@ -679,7 +702,7 @@ package screens
 		
 		// Player died - game over!
 		private function gameOver() : void {
-			cleanUp();
+			//cleanUp();
 			
 			this.removeEventListener(Event.ENTER_FRAME, checkElapsed);
 			this.removeEventListener(Event.ENTER_FRAME, gameLoop);
@@ -691,6 +714,7 @@ package screens
 		// Take me to the next stage of this epic adventure!
 		public function next() : void {
 			Debug.INFO("next() incremented current progress!", this);
+			Debug.INFO("ships[] is: " + Debug.formatArray(ships), this);
 			++VARS.currProgress;
 			storyTeller();
 		}
@@ -706,21 +730,10 @@ package screens
 			GO = new Image(Assets.getAtlas().getTexture("gameOver"));
 			GO.x = 350 - GO.width / 2;
 			GO.y = 120;
+		
+			init();
 			
-			startBtn = new Button(); 
-			startBtn.defaultSkin = new Image(Assets.getAtlas().getTexture("startGameBtn"));
-			startBtn.downSkin = new Image(Assets.getAtlas().getTexture("startGameBtnDown"));
-			startBtn.hoverSkin = new Image(Assets.getAtlas().getTexture("startGameBtnOver"));
-			startBtn.label = "This button starts the game!";
-			
-			addChild(startBtn);
-			
-			startBtn.validate();
-			startBtn.y = stage.stageHeight / 4;
-			startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
-			
-			addChild(GO);
-			startBtn.y = 200;
+			drawGame();
 			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
 		}
 		
@@ -733,7 +746,8 @@ package screens
 						// This is a bounding box issue and handled by this simple hack.
 						continue;
 					}
-					if ((bullets[i] as Laser).bounds.intersects((ships[j] as Ship).boundingbox)) {
+					
+					if (new Rectangle(bullets[i].x, bullets[i].y, (bullets[i] as Laser).hitBox.width, (bullets[i] as Laser).hitBox.width).intersects((ships[j] as Ship).boundingbox)) {
 						//Debug.INFO("Hit was registered: on object [" + Formatting.getName(ships[j]) + "]", this);
 						
 						var isPlayer:Boolean = (ships[j] == player);

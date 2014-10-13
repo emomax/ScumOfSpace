@@ -22,5 +22,14 @@ package debugger
 		public static function WARNING(s:String) : void {
 			trace("[DEBUG.WARNING]: "+ getNow() + ": " + s);
 		}
+		
+		public static function formatArray(a:Array) : String {
+			var s:String = "";
+			for (var i:int = 0; i < a.length; ++i) {
+				s += "[" + a[i] + "], ";
+			}
+			
+			return s;
+		}
 	}
 }

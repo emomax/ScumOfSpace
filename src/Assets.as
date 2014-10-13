@@ -1,7 +1,6 @@
 package
 {
 	import flash.display.Bitmap;
-	import flash.media.SoundTransform;
 	import flash.utils.Dictionary;
 	
 	import starling.textures.Texture;
@@ -11,6 +10,12 @@ package
 	{
 		private static var sTextures:Dictionary = new Dictionary();
 		private static var sTextureAtlas:TextureAtlas;
+		
+		[Embed(source="../media/graphics/MenuImage.png")]
+		public static const MenuImage:Class;
+		
+		[Embed(source="../media/graphics/level_complete.png")]
+		public static const LevelCompleteImage:Class;
 		
 		[Embed(source="../media/graphics/spaceBackground.png")]
 		public static const Background:Class;
