@@ -2,9 +2,11 @@ package objects
 {
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.text.engine.BreakOpportunity;
 	import flash.utils.Timer;
 	
 	import debugger.Debug;
+	
 	import global.VARS;
 	
 	import objects.AI;
@@ -24,6 +26,10 @@ package objects
 		private var _firePower:int
 		private var _canFire:Boolean;
 		
+		private var disableTimer:Timer;
+		private var _state:String = "enters";
+		private var fireIterator:uint = 0;
+		
 		public function Phaser(s:Sprite, p:Ship) {
 			super(s);
 			this._HP = 100;
@@ -34,10 +40,16 @@ package objects
 			// PHASER SPECIFIC ATTRIBUTES
 			fireSpeedPrimary = 600;
 			canFirePrimary = true;
-			firePowerPrimary = 6;
+			firePowerPrimary = 18;
 			fireTimerPrimary = new Timer(fireSpeedPrimary, 1);
 			
 			fireTimerPrimary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerPrimary.stop(); canFirePrimary = true; });
+			
+			disableTimer = new Timer(1000);
+			disableTimer.addEventListener(TimerEvent.TIMER, function (e:TimerEvent) : void {
+				disableTimer.stop();
+				state = "combat";
+			});
 		}
 		
 		override protected function onAddedToStage(e:Event) : void {
@@ -59,18 +71,35 @@ package objects
 		
 		public function behaviourLoop(e:Event) : void {
 			// Do stuff;
-			if (!_playerRef) {
-				this.removeEventListener(Event.ENTER_FRAME, behaviourLoop);
-				return;
+			
+			switch (state) {
+				case "enters":
+					if (this.x > shipArt.width) {
+						state = "combat";
+					} else {
+						this.x += speed * 2;
+					}
+					
+					break;
+				case "combat":
+					if (!_playerRef) {
+					this.removeEventListener(Event.ENTER_FRAME, behaviourLoop);
+						return;
+					}
+					copyPlayerMoves();
+					
+					velY *= VARS.airRes; 
+					
+					if(Math.round(velY*5) == 0) velY = 0;
+					
+					this.y += velY;
+				break;
+				
+				case "idle":
+					break;
+				default:
+					throw new Error("Invalid state for Phaser: " + state);
 			}
-			copyPlayerMoves();
-			
-			velY *= VARS.airRes; 
-			
-			
-			if(Math.round(velY*5) == 0) velY = 0;
-			
-			this.y += velY;
 		}
 		
 		public function copyPlayerMoves() : void
@@ -84,6 +113,11 @@ package objects
 		}
 		
 		override public function primary() : void {
+			addEventListener(Event.ENTER_FRAME, fireBurst);
+			state = "idle";
+			fireIterator = 0;
+			return;
+			
 			if (canFirePrimary) {
 				// Weapon can fire! Let's do it. FIRE() !!
 				fireTimerPrimary.start();
@@ -93,6 +127,17 @@ package objects
 			else {
 				// Weapon on cooldown. No firing allowed.
 			}
+		}
+		
+		private function fireBurst(e:Event) : void {
+			if (fireIterator > 20) {
+				this.removeEventListener(Event.ENTER_FRAME, fireBurst);
+				disableTimer.start();
+				fireIterator = 0;
+			}
+			
+			if (fireIterator++ == 0 || fireIterator == 15 || fireIterator == 30)
+				fire();
 		}
 		
 		public function fire() : void {
@@ -124,6 +169,12 @@ package objects
 		// Interface ENEMY
 		public function get target() : Ship { return _playerRef; }
 		public function set target(s:Ship) : void { _playerRef = s }
+		
+		public function get state() : String { return _state;}
+		public function set state(s:String) : void { 
+			Debug.INFO("Phaser state is now: " + _state, this);
+			_state = s; 
+		}
 		
 		public function clean() : void {
 			removeEventListener(Event.ENTER_FRAME, behaviourLoop);

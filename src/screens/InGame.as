@@ -3,17 +3,17 @@ package screens
 	import com.freeactionscript.effects.explosion.AbstractExplosion;
 	import com.freeactionscript.effects.explosion.LargeExplosion;
 	
+	import flash.geom.Rectangle;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import flash.utils.getTimer;
-	import flash.geom.Rectangle;
-	
-	import events.NavigationEvent;
 	
 	import controllers.KeyboardHandler;
 	
 	import debugger.Debug;
+	
+	import events.NavigationEvent;
 	
 	import feathers.controls.Button;
 	
@@ -25,12 +25,17 @@ package screens
 	import objects.IngameBackground;
 	import objects.Laser;
 	import objects.Phaser;
+	import objects.Screecher;
 	import objects.ShieldHit;
 	import objects.Ship;
 	import objects.Sparrow;
-	import objects.Screecher;
 	import objects.Target;
 	
+	import screens.Level;
+	
+	import starling.animation.Transitions;
+	import starling.animation.Tween;
+	import starling.core.Starling;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -38,9 +43,7 @@ package screens
 	
 	import utils.TextGenerator;
 	
-	
-	
-	public class InGame extends Sprite
+	public class InGame extends Level
 	{
 		private var startBtn:Button;
 		private var player:Sparrow;
@@ -75,14 +78,11 @@ package screens
 		
 		private var comingEnemies:Array = new Array();
 		
-		public static var bullets:Array = new Array();
-		public static var ships:Array = new Array();
-		
 		private var textHandler:TextGenerator = new TextGenerator(this);
 		
 		private var shakeIterator:int = 0;
 		
-		private var boss:Ship = new Screecher(this);
+		private var boss:Ship;
 		
 		// TEMP TESTING VARS
 		private var en:Phaser;
@@ -100,7 +100,16 @@ package screens
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			init();
 			drawGame();
-			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
+			ships.push(player);
+			addChild(player);
+			gameState = "idle";
+			startBtn.removeEventListener(Event.TRIGGERED, onMouseDown);
+			removeChild(startBtn, true);
+			
+			startGameSound.play(0, 0, VARS.soundVolume);
+			
+			this.addEventListener(Event.ENTER_FRAME, checkElapsed);
+			this.addEventListener(Event.ENTER_FRAME, gameLoop);
 			
 			xMax = stage.stageWidth - 100;
 			yMax = stage.stageHeight - 100;
@@ -163,13 +172,25 @@ package screens
 					textHandler.startText();
 					this.addEventListener("conversationOver", next);
 					break;
+				case 3:
+					text = global.Conversations.get("boss_mid_fight");
+					textHandler.textBlocks = text;
+					textHandler.startText();
+					this.addEventListener("conversationOver", next);
+					break;
+				case 4:
+					text = global.Conversations.get("boss_new_weapon");
+					textHandler.textBlocks = text;
+					textHandler.startText();
+					this.addEventListener("conversationOver", next);
+					break;
 				default: break;
 			}
 		}
 		
 		// This function is called when a conversation is over
 		// to take the story forward
-		private function storyTeller() : void {
+		override protected function storyTeller() : void {
 			removeEventListener("conversationOver", next);
 			Debug.INFO("storyTeller() - currProgress is: " + VARS.currProgress, this);
 			
@@ -193,6 +214,7 @@ package screens
 					
 					addEventListener("objectiveComplete", function(e:Event) : void {
 						removeEventListener("objectiveComplete", arguments.callee);
+						completeSound.play();
 						next();
 					});
 					
@@ -276,7 +298,7 @@ package screens
 								l.destroy();
 								
 								var shieldHit:ShieldHit = new ShieldHit(mike);
-								shieldHit.x += mike.direction * mike.boundingbox.width / 2;
+								shieldHit.x += mike.direction * (mike.boundingbox.width / 2) - 15;
 								shieldHit.y -= mike.boundingbox.height / 2 + 10;
 								
 								shieldHit.scaleX = -mike.direction * ((mike.boundingbox.width + 20) / shieldHit.width);
@@ -285,6 +307,7 @@ package screens
 								mike.addChild(shieldHit);
 								
 								shakeScreen();
+								soundHandler = bossMusic.play();
 								
 								(new Assets.ExplosionSound() as Sound).play(0, 0, global.VARS.soundVolume);
 								
@@ -301,7 +324,7 @@ package screens
 						boss.x = -100;
 						boss.y = 190;
 						(boss as Screecher).fixatePosition();
-						boss.init();
+						(boss as Screecher).init();
 						
 						addChild(boss);
 						gameState = "screecher_enter";
@@ -319,44 +342,82 @@ package screens
 						addEventListener("megaBlast", mikeFire = function() : void {
 							
 							removeEventListener("megaBlast", mikeFire);
-							var l:Laser = new Laser((this as Sprite), boss, 1, 9001); 
-							l.y = stage.stageHeight * 0.2;
-							l.x = 150;
-							l.scaleX = 2;
-							l.scaleY = 2;
-							addChild(l);
+							ships.push(mike);
+							mike._HP = 1;
+							
 							(new Assets.LaserSound() as Sound).play(0, 0, global.VARS.soundVolume);
 							
-							addEventListener(Event.ENTER_FRAME, function(e:Event) : void {
-								if (l.bounds.intersects(mike.boundingbox)) {
-									ships.push(mike);
-									mike.takeDmg(l.power);
-									l.destroy();
-									
-									shakeScreen();
-									removeEventListener(Event.ENTER_FRAME, arguments.callee);
-									addEventListener("conversationOver", next);
-									
-									(new Assets.ExplosionSound() as Sound).play(0, 0, global.VARS.soundVolume);
-								}
+							var bulletCheck:Function;
+							addEventListener(Event.ENTER_FRAME, bulletCheck = function(e:Event) : void {
+								checkBullets();
+							});
+							
+							addEventListener("enemyDown", function(e:Event) : void {
+								removeEventListener("enemyDown", arguments.callee);
+								removeEventListener(Event.ENTER_FRAME, bulletCheck);
+								shakeScreen();
+								addEventListener("conversationOver", next);
 							});
 						});
 					});
 					break;
 				case 9:
 					ships.push(boss);
+					currObjective = "boss_first";
+					addEventListener("objectiveComplete", function(e:Event) : void {
+						removeEventListener("objectiveComplete", arguments.callee);
+						shakeScreen();
+						currObjective = "ua";
+						next();
+					});
 					(boss as Screecher).target = player;
 					(boss as Screecher).engage();
-					currObjective = "ua";
 					gameState = "play";
-					Debug.INFO(Debug.formatArray(ships), this);
-					Debug.INFO(Debug.formatArray(bullets), this);
-					
+					break;
+				case 10:
+					startConvo();
+					(boss as Screecher).idle();
+					gameState = "over";
+					break;
+				case 11:
+					(boss as Screecher).engage();
+					gameState = "play";
+					currObjective = "boss_second";
+					addEventListener("objectiveComplete", function(e:Event) : void {
+						removeEventListener("objectiveComplete", arguments.callee);
+						currObjective = "ua";
+						shakeScreen();
+						next();
+					});
+					(boss as Screecher).target = player;
+					(boss as Screecher).engage();
+					gameState = "play";
+					break;
+				case 12:
+					startConvo();	
+					(boss as Screecher).idle();
+					gameState = "over";
+					break;
+				case 13:
+					(boss as Screecher).superEngage();
+					gameState = "play";
 					var gameWon:Function;
-					this.addEventListener("enemyDown", gameWon = function (e:Event) : void {
+					addEventListener("bossKilled", gameWon = function (e:Event) : void {
 						gameState = "bossExplode";
-						this.removeEventListener("enemyDown", gameWon);
-						this.dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "level_completed"}, true));
+						shakeScreen();
+						this.removeEventListener("bossKilled", gameWon);
+						soundHandler.stop();
+						
+						var tween:Tween = new Tween(this, 3.0, Transitions.EASE_IN_OUT);
+						tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
+						tween.onComplete = function () : void { 
+							if (VARS.levelProgress < 2) VARS.levelProgress = 2;
+							dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+							
+							Level.soundHandler.stop();
+							Level.soundHandler = (new Assets.MenuMusic()).play();
+						}
+						starling.core.Starling.juggler.add(tween);
 					});
 					break;
 				default: break;
@@ -396,40 +457,42 @@ package screens
 			
 			_explosion = new LargeExplosion(this);
 			
-			mike = new Blackbird(this);
+			mike = new Blackbird(this, 2);
 			mike.x = 760;
 			mike.y = stage.stageHeight * 0.2;
 			
-			bg = new IngameBackground(this);
+			chatter = mike;
+			
+			bg = new IngameBackground(this, 1);
 		}
 		
 		// Paint the screen like one of your french girls.
 		private function drawGame():void {
 			
-			addChild(bg);
+			if (!this.contains(bg))
+				addChild(bg);
+			boss = new Screecher(this);
 			
-			addChild(textHandler);
 			textHandler.y = stage.stageHeight;
 			
 			drawStart();
+			
+			addChild(textHandler);
 		}
 		
 		// Hit the start button? Redraw game
 		private function drawStart(restart:Boolean = false) : void {
-			addChild(startBtn);
+			// addChild(startBtn);
 			// Feather buttons do not have a width until they have been drawn. 
 			// Use .validate() to precalculate width for positioning before
 			// next draw call.
-			startBtn.validate();
-			startBtn.y = stage.stageHeight / 4;
-			startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
+			//startBtn.validate();
+			//startBtn.y = stage.stageHeight / 4;
+			//startBtn.x = stage.stageWidth/2 - startBtn.width / 2;
 			
 			player = new Sparrow(this);
 			player.x = stage.stageWidth + player.width + 120;
 			player.y = stage.stageHeight * 0.6;
-			
-			ships.push(player);
-			addChild(player);
 			
 			if (!restart) {
 				//spawnEnemy(Math.round(Math.random()) == 1 ? "Phaser" : "Target");
@@ -455,6 +518,7 @@ package screens
 					t.y = Math.random() * (stage.stageHeight - (textHandler.height + 60)) + 60;
 					t.fixatePosition();
 					t.init();
+					t._HP = 1;
 					ships.push(t);
 					addChild(t);
 					break;
@@ -511,7 +575,7 @@ package screens
 						mike.x += mike.velX;	
 					}
 					
-					if (Math.round(player.y) < stage.stageHeight * 0.5 || Math.round(player.x) < stage.stageWidth - player.width) {
+					if (Math.round(player.y) < stage.stageHeight * 0.5 || Math.round(player.x) < stage.stageWidth - player.width || Math.round(player.y) > stage.stageHeight - textHandler.height - 80) {
 						allInPlace = false;
 						
 						if (Math.round(player.x) < stage.stageWidth - player.width) {
@@ -527,6 +591,15 @@ package screens
 						}
 						if (Math.round(player.y) < stage.stageHeight * 0.5) {
 							player.velY += player.speed;
+							
+							if(Math.abs(player.velY) > player.maxVel/3)
+								player.velY = (Math.abs(player.velY) / player.velY) * player.maxVel/3; 	// |velY| / velY -> 1 or -1
+							
+							player.velY *= global.VARS.airRes;
+							player.y += player.velY;
+						}
+						if (Math.round(player.y) > stage.stageHeight - textHandler.height - 80) {
+							player.velY -= player.speed;
 							
 							if(Math.abs(player.velY) > player.maxVel/3)
 								player.velY = (Math.abs(player.velY) / player.velY) * player.maxVel/3; 	// |velY| / velY -> 1 or -1
@@ -648,22 +721,23 @@ package screens
 						return true;
 					}
 					break;
+				case "boss_first":
+					if (boss._HP <= 2000) {
+						return true;
+					}
+					break;
+				case "boss_second":
+					if (boss._HP <= 1300) {
+						return true;
+					}
+					break;
 				case "ua":
 					return false;
 				default:
-					break;
+					throw new Error("Unknown objective type: '" + currObjective + "'");
 			}
 			
 			return false;
-		}
-		
-		// Show bounding boxes of all ships
-		public static function showBoxes() : void {
-			for (var i:int = 0; i < ships.length; ++i) {
-				(ships[i] as Ship).toggleBox(!VARS.showBoundingBoxes);
-			}
-			
-			VARS.showBoundingBoxes = !VARS.showBoundingBoxes;	
 		}
 		
 		// Shake screen. Explosion? Earth quake? One does not know
@@ -708,16 +782,10 @@ package screens
 			this.removeEventListener(Event.ENTER_FRAME, gameLoop);
 			
 			showGameOverScreen();
+			(boss as Screecher).disable();
 			gameState = "over";
 		}
 		
-		// Take me to the next stage of this epic adventure!
-		public function next() : void {
-			Debug.INFO("next() incremented current progress!", this);
-			Debug.INFO("ships[] is: " + Debug.formatArray(ships), this);
-			++VARS.currProgress;
-			storyTeller();
-		}
 		
 		// Let's the game loop know where in the story we are.
 		private function set gameState(state:String) : void {
@@ -728,13 +796,23 @@ package screens
 		// Let the player know that the game actually is over.
 		private function showGameOverScreen() : void {
 			GO = new Image(Assets.getAtlas().getTexture("gameOver"));
-			GO.x = 350 - GO.width / 2;
+			GO.x = 450 - GO.width / 2;
 			GO.y = 120;
-		
-			init();
 			
-			drawGame();
-			startBtn.addEventListener(Event.TRIGGERED, onMouseDown);
+			addChild(GO);
+			
+			var tween:Tween = new Tween(this, 5.0, Transitions.EASE_IN_OUT);
+			tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
+			tween.onComplete = tween.onComplete = function () : void { 
+				if (VARS.levelProgress < 2) VARS.levelProgress = 2;
+				dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+				Level.soundHandler.stop();
+				Level.soundHandler = (new Assets.MenuMusic()).play();
+			}
+			
+			starling.core.Starling.juggler.add(tween);	
+			
+			//drawGame();
 		}
 		
 		// Check for hits!
@@ -774,6 +852,9 @@ package screens
 							break;
 						}
 						
+						if (isPlayer && (bullets[i] as Laser).bigBlast)
+							shakeScreen();
+						
 						(bullets[i] as Laser).destroy();
 						
 						var shieldHit:ShieldHit = new ShieldHit(ships[j]);
@@ -785,7 +866,7 @@ package screens
 						
 						ships[j].addChild(shieldHit);
 						
-						shieldHitSound.play();
+						shieldHitSound.play(0, 0, VARS.soundVolume);
 						
 						break;
 					}

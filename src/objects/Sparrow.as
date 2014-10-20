@@ -2,8 +2,9 @@ package objects
 {
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
-	import flash.media.Sound;
 	import flash.utils.Timer;
+	
+	import global.VARS;
 	
 	import objects.MuzzleFlash;
 	
@@ -27,7 +28,7 @@ package objects
 		
 		private var _exhaustArt:MovieClip;
 		
-		private var laserSound:Sound = new Assets.LaserSound();		
+		
 		
 		public function Sparrow(stageRef:Sprite,  HP:int = 100, firePower:int = 12, fireSpeed:Number = 100) : void
 		{
@@ -36,6 +37,8 @@ package objects
 			direction = -1;
 			
 			_HP = HP;
+			
+			_maxHp = _HP;
 			
 			// TEMPORARY SOLUTION. SEND WEAPONS AS OBJECTS() AS OPTIONAL PARAMETERS INSTEAD.
 			firePowerPrimary = firePower;
@@ -50,7 +53,7 @@ package objects
 			canFirePrimary = true;
 			canFireSecondary = true;
 			
-			_weaponDistance = new Point(-15, 18);
+			_weaponDistance = new Point(-9, 33);
 		}
 		
 		override protected function onAddedToStage(e:Event):void {
@@ -65,6 +68,19 @@ package objects
 			
 			fireTimerPrimary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerPrimary.stop(); canFirePrimary = true; });
 			fireTimerSecondary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerSecondary.stop(); canFireSecondary = true; });
+			
+			addHpBar();
+			
+			addEventListener(Event.ENTER_FRAME, sparrowLoop);
+		}
+		
+		private function sparrowLoop(e:Event) : void {
+			if (this._HP < this._maxHp) {
+				this._HP += 0.05;
+				if (_hpBar) {
+					_hpBar.bar.scaleX = _HP / _maxHp;
+				}
+			}
 		}
 		
 		public function get exhaustArt() : MovieClip { return _exhaustArt; }
@@ -97,16 +113,19 @@ package objects
 			var m:MuzzleFlash = new MuzzleFlash(this);
 			var l:Laser = new Laser(stageRef, this, -1, firePowerPrimary);			
 			//this.x - _boundingbox.width / 2, this.y - this._boundingbox.height / 2
-			l.x = this.x + boundingbox.width / 2 + getWeaponDistance().x; //f+ this.boundingbox.width / 2; //this.x;// + getWeaponDistance().x;
-			l.y = this.y + getWeaponDistance().y;////this.y;// + getWeaponDistance().y;
+		
+			l.x = this.x + getWeaponDistance().x;
+			l.y = this.y + getWeaponDistance().y;
+			l.alignPivot( "left", "center");
 			l.scaleX = -1;
 			
-			m.x = getWeaponDistance().x + 9;
-			m.y = getWeaponDistance().y + 9;
+			m.alignPivot();
+			m.x = getWeaponDistance().x;
+			m.y = getWeaponDistance().y;
 			m.scaleX = -1;
 			
 			this.addChild(m);
-			laserSound.play();
+			laserSound.play(0,0, VARS.soundVolume);
 			stageRef.addChild(l);
 		}
 		

@@ -11,11 +11,25 @@ package
 		private static var sTextures:Dictionary = new Dictionary();
 		private static var sTextureAtlas:TextureAtlas;
 		
+		// GRAPHICS
+		
 		[Embed(source="../media/graphics/MenuImage.png")]
 		public static const MenuImage:Class;
 		
+		[Embed(source="../media/graphics/lvlSelection.png")]
+		public static const LevelSelectionImage:Class;
+		
 		[Embed(source="../media/graphics/level_complete.png")]
 		public static const LevelCompleteImage:Class;
+		
+		[Embed(source="../media/graphics/spaceBackground_2.png")]
+		public static const Background_2:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground_2.png")]
+		public static const Foreground_2:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground2_2.png")]
+		public static const Foreground2_2:Class;		
 		
 		[Embed(source="../media/graphics/spaceBackground.png")]
 		public static const Background:Class;
@@ -31,6 +45,8 @@ package
 		
 		[Embed(source="../media/graphics/atlas.xml", mimeType="application/octet-stream")]
 		public static const AtlasXmlGame:Class;
+		
+		// FONTS
 		
 		[Embed(source="../fonts/Eras\ Demi\ ITC.ttf", embedAsCFF="false", mimeType = "application/x-font",fontFamily="Eras Sans", advancedAntiAliasing = "true", unicodeRange = "U+0020-U+007e")]
 		public static const Eras:Class;
@@ -51,6 +67,26 @@ package
 		
 		[Embed(source="../media/sounds/play.mp3")]
 		public static const PlaySound:Class;
+		
+		[Embed(source="../media/sounds/start.mp3")]
+		public static const ClickSound:Class;
+		
+		// MUSIC
+		
+		[Embed(source="../media/sounds/lvl_complete.mp3")]
+		public static const CompleteMusic:Class;
+		
+		[Embed(source="../media/sounds/lvl_fanfare.mp3")]
+		public static const FanfareMusic:Class;
+		
+		[Embed(source="../media/sounds/boss_fight.mp3")]
+		public static const BossMusic:Class;
+		
+		[Embed(source="../media/sounds/lounge.mp3")]
+		public static const MenuMusic:Class;
+		
+		[Embed(source="../media/sounds/lvl2.mp3")]
+		public static const Level2Music:Class;
 		
 		public static function getAtlas():TextureAtlas {
 			if (sTextureAtlas == null) {

@@ -5,22 +5,45 @@ package objects {
 
 	public class IngameBackground extends Sprite{
 		
-		public var bg:Image = new Image(Assets.getTexture("Background"));
-		public var bg2:Image = new Image(Assets.getTexture("Background"));
+		public var bg:Image;
+		public var bg2:Image;
 		
-		public var fg:Image = new Image(Assets.getTexture("Foreground"));
-		public var fg2:Image = new Image(Assets.getTexture("Foreground"));
+		public var fg:Image;
+		public var fg2:Image;
 		
-		public var mg:Image = new Image(Assets.getTexture("Foreground2"));
-		public var mg2:Image = new Image(Assets.getTexture("Foreground2"));
+		public var mg:Image;
+		public var mg2:Image;
 		
 		private var speed:int = 1;
 		private var stageRef:Sprite;
 		
 		private var bgX:Number = 0;
 		
-		public function IngameBackground(s:Sprite) {
+		public function IngameBackground(s:Sprite, level:int) {
 			stageRef = s;
+			
+			switch (level) {
+				case 1:
+					bg = new Image(Assets.getTexture("Background"));
+					bg2 = new Image(Assets.getTexture("Background"));
+					
+					fg = new Image(Assets.getTexture("Foreground"));
+					fg2 = new Image(Assets.getTexture("Foreground"));
+					
+					mg = new Image(Assets.getTexture("Foreground2"));
+					mg2 = new Image(Assets.getTexture("Foreground2"));
+					break;
+				case 2:
+					bg = new Image(Assets.getTexture("Background_2"));
+					bg2 = new Image(Assets.getTexture("Background_2"));
+					
+					fg = new Image(Assets.getTexture("Foreground_2"));
+					fg2 = new Image(Assets.getTexture("Foreground_2"));
+					
+					mg = new Image(Assets.getTexture("Foreground2_2"));
+					mg2 = new Image(Assets.getTexture("Foreground2_2"));
+					break;
+			}
 			
 			bg2.x = -700;
 			mg2.x = -700;

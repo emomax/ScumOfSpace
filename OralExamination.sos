@@ -1,0 +1,36 @@
+	Things to bring up during Oral Examination
+
+	- Game	-> Menu.as
+			-> LevelSelection.as
+			-> InGame.as
+			-> LevelCompleted.as
+		* changeScreen();
+		* NavigationEvent();
+
+	- InGame.as
+		- startConvo();
+		- storyTeller();
+		- init();
+		- spawnEnemy();
+		- gameLoop()
+			switch (gameCase);
+		- next();
+		- checkBullets();
+
+	- To make things easier:
+		- debugger.Debug.as;
+		- showBoundingboxes;
+	- Object arrangement
+		- superclass Ship.as
+			* destroy();
+			* addExhaust();
+			* createShipArt();
+		- interface STALKER, ENEMY, PRIMARY_WEAPON, SECONDARY_WEAPON
+			* behaviourLoop();
+			* fire(); get/set FireTimer(); get/set FirePower(); 
+	
+	- Game touches
+		- Conversations.as -> TextHandler.as
+		- shakeScreen();
+		- shieldHit();
+

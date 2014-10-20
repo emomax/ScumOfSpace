@@ -3,7 +3,6 @@ package utils {
 	import flash.media.Sound;
 	import flash.text.Font;
 	import flash.ui.Keyboard;
-	import flash.utils.Timer;
 	
 	import Assets;
 	
@@ -14,6 +13,7 @@ package utils {
 	import objects.Portrait;
 	
 	import screens.InGame;
+	import screens.Level;
 	
 	import starling.animation.Transitions;
 	import starling.animation.Tween;
@@ -23,7 +23,6 @@ package utils {
 	import starling.events.Event;
 	import starling.events.KeyboardEvent;
 	import starling.text.TextField;
-	import starling.utils.deg2rad;
 	
 	public class TextGenerator extends Sprite{
 		
@@ -52,12 +51,10 @@ package utils {
 			art = new Image(Assets.getAtlas().getTexture("textbox"));
 			this.addChild(art);
 			
-			
 			charIcon = new Portrait();
 			
-			//Debug.INFO("Trying to use font named: '" + bodyFont.fontName + "'. ", this);
+			// Set text properties
 			txt = new TextField(550, 60, "", bodyFont.fontName, 15, 0x000000);
-			
 			txt.hAlign = "left";
 			txt.vAlign = "top";
 			txt.x = 114;
@@ -90,9 +87,18 @@ package utils {
 			switch (s) {
 				case "UA":
 					charIcon.face = "ua";
+					(stageRef as Level).hideChatter();
 					break;
 				case "Mike":
 					charIcon.face = "mike";
+					(stageRef as Level).showChatter();
+					break;
+				case "Commander":
+					charIcon.face = "commander";
+					(stageRef as Level).showChatter();
+					break;
+				case "Jonas":
+					charIcon.face = "jonas";
 					break;
 				default: 
 					throw new Error("Couldn't process string '" + s + "'. No matching icon.");
@@ -196,6 +202,11 @@ package utils {
 					showIcon("UA");
 					stageRef.dispatchEvent(new Event("screecherEnters"));
 					stageRef.addEventListener("screecherEntered", effectDone);
+					return;
+				case "commander_hit":
+					showIcon("UA");
+					stageRef.dispatchEvent(new Event("commanderHit"));
+					stageRef.addEventListener("shakeDone", effectDone);
 					return;
 				case "misc":
 					showIcon("UA");

@@ -1,10 +1,18 @@
 package objects
 {
+	import com.freeactionscript.effects.explosion.AbstractExplosion;
+	import com.freeactionscript.effects.explosion.LargeExplosion;
+	
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.media.Sound;
 	import flash.utils.Timer;
 	
+	import Assets;
+	
 	import debugger.Debug;
+	
+	import global.VARS;
 	
 	import objects.ENEMY;
 	import objects.Laser;
@@ -12,7 +20,8 @@ package objects
 	import objects.PrimaryWeapon;
 	import objects.Ship;
 	
-	import starling.core.Starling;
+	import screens.Level;
+	
 	import starling.display.Image;
 	import starling.display.MovieClip;
 	import starling.display.Sprite;
@@ -44,23 +53,52 @@ package objects
 		private var _firePower:int
 		private var _canFire:Boolean;
 		
+		private var _coolDown:Boolean;
+		private var _coolDownTimer:Timer;
+		
+		private var explodeIterator:int = 0;
+		private var explosionSound:Sound = new Assets.ExplosionSound();
+		private var shotIterator:int = 0;
+		private var lastFire:Boolean = false;
+		private var superMode:Boolean = false;
+		
 		public function Screecher(s:Sprite)
 		{
 			Debug.INFO("I AM ALIVE!", this);
 			super(s);
-			this._HP = 2000;
+			this._HP = 2300;
 			this.moves.push("homeAndKill");
-			this.moves.push("tripleBurst");
+			this.moves.push("shootTriple");
 			
 			bossState = "idle";
 			
 			firePowerPrimary = 20;
 			
 			actionTimer = new Timer(3000, 1);
-			actionTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void {
-				canDoAction = true;
-				actionTimer.stop();
-			});
+			actionTimer.addEventListener(TimerEvent.TIMER, onActionTimer);
+			
+			fireTimerPrimary = new Timer(100, 1);
+			fireTimerPrimary.addEventListener(TimerEvent.TIMER, onFireTimer);
+			
+			_coolDownTimer = new Timer(1000, 1);
+			_coolDownTimer.addEventListener(TimerEvent.TIMER, onCoolDownTimer);
+			_coolDown = true;
+			canFirePrimary = true;
+		}
+		
+		private function onActionTimer(e:TimerEvent) : void {	
+			canDoAction = true;
+			actionTimer.stop();		
+		}
+		
+		private function onFireTimer(e:TimerEvent) : void {
+			canFirePrimary= true;
+			fireTimerPrimary.stop();
+		}
+		
+		private function onCoolDownTimer(e:TimerEvent) : void {
+			_coolDown = true;
+			_coolDownTimer.stop();
 		}
 		
 		override protected function onAddedToStage(e:Event) : void {
@@ -108,7 +146,7 @@ package objects
 			homingBeamBot.visible = false;
 			homingBeamTop.visible = false;
 			
-			addChild(box5);
+			//addChild(box5);
 			
 			this.showBoundingBox();
 			direction = 1;
@@ -142,12 +180,12 @@ package objects
 			addEventListener(Event.ENTER_FRAME, behaviourLoop);
 			
 			//box5 = new DrawRect(new Rectangle(0, 0, 10, 10));
-			box5 = new MovieClip(Assets.getAtlas().getTextures("spark_"), 15);
+			/*box5 = new MovieClip(Assets.getAtlas().getTextures("spark_"), 15);
 			box5.alignPivot();
 			box5.scaleX = 0.6;
 			box5.scaleY = 0.76;
 			box5.visible = false;
-			starling.core.Starling.juggler.add(box5);
+			starling.core.Starling.juggler.add(box5);*/
 		}
 		
 		public function homeAndKill(t:Ship) : void {
@@ -159,8 +197,8 @@ package objects
 			
 			this._playerRef = t;
 			
-			box5.x = t.x - this.x;
-			box5.y = t.y - this.y;
+			//box5.x = t.x - this.x;
+			//box5.y = t.y - this.y;
 			
 			iterator = 0;
 			
@@ -176,127 +214,173 @@ package objects
 			bossState = "homing";
 		}
 		
-		public function behaviourLoop(e:Event) : void {
+		private function behaviourLoop(e:Event) : void {
 			// Do stuff;
 			
-			switch (bossState) {
-				case "homing":					
+			switch (_bossState) {/**/
+				case "laserTag":
 					iterator++;
 					
 					if (iterator == 1) {
-						box5.visible = true;
-						
+						homingBeamTop.visible = true;
+						homingBeamBot.visible = true;
+						homingBeamTop.rotation = 0;
+						homingBeamBot.rotation = 0;
+					} else if (iterator == 10){
+						homingBeamTop.visible = false;
+						homingBeamBot.visible = false;
+					} else if (iterator == 20) {
+						homingBeamTop.visible = true;
+						homingBeamBot.visible = true;
+					} else if (iterator == 30) {
+						homingBeamTop.visible = false;
+						homingBeamBot.visible = false;
+					} else if (iterator >= 40) {
+						bossState = "fireTriplet";
+					}
+					break;
+				case "homing":					
+					iterator += superMode ? 2 : 1;
+					
+					if (iterator <= 2) {
+						//box5.visible = true;
 						homingBeamTop.visible = true;
 						homingBeamBot.visible = true;
 					} else if (iterator == 20){
 						homingBeamTop.visible = false;
 						homingBeamBot.visible = false;
-						box5.visible = false;
+						//visible = false;
 					} else if (iterator == 40) {
 						
-						box5.visible = true;
+						//box5.visible = true;
 						homingBeamTop.visible = true;
 						homingBeamBot.visible = true;
 					} else if (iterator == 60) { 
 						homingBeamTop.visible = false;
 						homingBeamBot.visible = false;
-						box5.visible = false;
+						//box5.visible = false;
 					} else if (iterator == 90) {
 						fire();
 						bossState = "idle";
 						stageRef.dispatchEvent(new Event("megaBlast"));
-						actionTimer.start();
+						startActionTimer();
 						Debug.INFO("FIRE", this);
 					}
-					
 					break;
 				
+				case "fireTriplet":
+					if (canFirePrimary) {							
+						if (shotIterator++ <3) {									
+							lastFire = !lastFire;
+							fire(true);
+							
+							fireTimerPrimary.start();
+							canFirePrimary = false;
+						} else {
+							shotIterator = 0;
+							canDoAction = false;
+							startActionTimer();
+							stageRef.dispatchEvent(new Event("megaBlast"));
+						}
+					}
+					break;
+					
 				case "engagedInCombat": 
 					if (canDoAction) {
-						switch (this.moves[0]) {
+						
+						var attackState:String = getAttackState();
+					
+						switch (attackState) {
 							case "homeAndKill":
 								stageRef.addEventListener("megaBlast", engage);
 								homeAndKill(target);
 								canDoAction = false;
 								
 								break;
-							default: 
+							case "shootTriple": 
+								stageRef.addEventListener("megaBlast", engage);
+								bossState = "laserTag";
+								iterator = 0;
 								break;
+							default: 
+								throw new Error("Unknown move for boss Screecher: " + attackState);
 						}
 					}
-					
+					else { /*  candonothing */}
 				
 				case "idle":
 					var hoverRadians:Number = deg2rad(hoverIterator++);
 					this.y = startY + 30 * Math.sin(hoverRadians);	
+					
+					homingBeamTop.visible = false;
+					homingBeamBot.visible = false;
+					//box5.visible = false;
+					break;
+					
+				case "player_dead":
+					removeEventListener(Event.ENTER_FRAME, arguments.callee);
 					break;
 								
 				default:
 					// fall through loop
+					throw new Error("Unknown bossState: '" + bossState + "'");
 					break;
 			}
 		}
 		
 		public function engage(e:Event = null) : void {
-			if (e != null ) stageRef.removeEventListener("megaBlast", arguments.callee);
+			if (e != null ) {
+				stageRef.removeEventListener("megaBlast", arguments.callee);
+			} 
+			
 			bossState = "engagedInCombat";
-			//canDoAction = true;
 		}
 		
-		private function calcIntersection(theta1:Number, theta2:Number) : Point {
-			var beams:Array = getBeams(theta1, theta2);
-			return lineIntersectLine(beams[0][0], beams[0][1], beams[1][0], beams[1][1], true);
+		public function superEngage() : void {
+			
+			bossState = "engagedInCombat";
+			actionTimer.stop();
+			actionTimer = new Timer(600, 1);
+			actionTimer.addEventListener(TimerEvent.TIMER, onActionTimer);
+			actionTimer.reset();
+			//actionTimer.start();
+			superMode = true;
 		}
 		
-		private function lineIntersectLine(A:Point,B:Point,E:Point,F:Point,as_seg:Boolean=true):Point {
-			var ip:Point;
-			var a1:Number;
-			var a2:Number;
-			var b1:Number;
-			var b2:Number;
-			var c1:Number;
-			var c2:Number;
+		public function disable() : void {
+			Debug.INFO( "disable() called! ", this);
+			stageRef.removeEventListener("megaBlast", engage);
+			bossState = "idle";
+
+			_coolDownTimer.stop();
+			fireTimerPrimary.stop();
+			actionTimer.stop();
+		}
+		
+		public function idle() : void {
+			bossState = "idle";
 			
-			a1= B.y-A.y;
-			b1= A.x-B.x;
-			c1= B.x*A.y - A.x*B.y;
-			a2= F.y-E.y;
-			b2= E.x-F.x;
-			c2= F.x*E.y - E.x*F.y;
-			
-			var denom:Number=a1*b2 - a2*b1;
-			if (denom == 0) {
-				return null;
+			startActionTimer();
+		}
+		
+		public function startActionTimer() : void {
+			actionTimer.start();
+		}
+		
+		private function getAttackState() : String {
+			switch (VARS.currProgress) {
+				case 9:
+					return moves[0];
+					break;
+				case 11: 
+					return moves[1];
+					break;
+				case 13:
+					var i:int = (Math.ceil(Math.random()*moves.length) - 1);
+					return moves[i];
+				default:
+					throw new Error("Unhandled VARS.currProgress from Screecher: " + VARS.currProgress);
 			}
-			ip=new Point();
-			ip.x=(b1*c2 - b2*c1)/denom;
-			ip.y=(a2*c1 - a1*c2)/denom;
-			
-			//---------------------------------------------------
-			//Do checks to see if intersection to endpoints
-			//distance is longer than actual Segments.
-			//Return null if it is with any.
-			//---------------------------------------------------
-			if(as_seg){
-				if(Math.pow(ip.x - B.x, 2) + Math.pow(ip.y - B.y, 2) > Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2))
-				{
-					return null;
-				}
-				if(Math.pow(ip.x - A.x, 2) + Math.pow(ip.y - A.y, 2) > Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2))
-				{
-					return null;
-				}
-				
-				if(Math.pow(ip.x - F.x, 2) + Math.pow(ip.y - F.y, 2) > Math.pow(E.x - F.x, 2) + Math.pow(E.y - F.y, 2))
-				{
-					return null;
-				}
-				if(Math.pow(ip.x - E.x, 2) + Math.pow(ip.y - E.y, 2) > Math.pow(E.x - F.x, 2) + Math.pow(E.y - F.y, 2))
-				{
-					return null;
-				}
-			}
-			return ip;
 		}
 		
 		private function set bossState(state:String) : void {
@@ -323,7 +407,32 @@ package objects
 			}
 		}
 		
-		public function fire() : void {
+		public function fire(normalShot:Boolean = false) : void {
+			if (normalShot) {
+				
+				var m:MuzzleFlash = new MuzzleFlash(stageRef);
+				var l:Laser = new Laser(stageRef, this, 1, firePowerPrimary, null, true);
+				
+				if (lastFire) {
+					l.x = this.x + homingBeamTop.x;
+					l.y = this.y + homingBeamTop.y;
+					
+					m.x = this.x + homingBeamTop.x;
+					m.y = this.y + homingBeamTop.y;
+					
+				}
+				else {
+					l.x = this.x + homingBeamBot.x;
+					l.y = this.y + homingBeamBot.y;
+					
+					m.x = this.x + homingBeamBot.x;
+					m.y = this.y + homingBeamBot.y;
+				}
+				
+				stageRef.addChild(m);
+				stageRef.addChild(l);
+				return;
+			}
 			var dir1:Point = new Point();
 			var dir2:Point = new Point();
 			
@@ -333,10 +442,10 @@ package objects
 			dir2.x = Math.cos(homingBeamBot.rotation);
 			dir2.y = Math.sin(homingBeamBot.rotation);
 			
-			var m:MuzzleFlash = new MuzzleFlash(stageRef);
-			var l:Laser = new Laser(stageRef, this, 1, firePowerPrimary, dir1);
+			m = new MuzzleFlash(stageRef);
+			l = new Laser(stageRef, this, 1, firePowerPrimary, dir1, true);
 			var m2:MuzzleFlash = new MuzzleFlash(stageRef);
-			var l2:Laser = new Laser(stageRef, this, 1, firePowerPrimary, dir2);
+			var l2:Laser = new Laser(stageRef, this, 1, firePowerPrimary, dir2, true);
 			
 			l.scaleX = 2;
 			l.scaleY = 2;
@@ -372,6 +481,38 @@ package objects
 			stageRef.addChild(l);
 			stageRef.addChild(m2);
 			stageRef.addChild(l2);
+		}
+		
+		override protected function destroy() : void {
+			(stageRef as Level).ships.splice((stageRef as Level).ships.indexOf(this), 1);
+			
+			explodeIterator = 0;
+			addEventListener(Event.ENTER_FRAME, explodeLoop);
+			(stageRef as Level).fanfareSound.play();
+			bossState = "idle";
+		}
+		
+		private function explodeLoop(e:Event) : void {
+			var expl:AbstractExplosion = new LargeExplosion(stageRef);
+			if (++explodeIterator > 210) {
+				
+				//Debug.INFO("Explode at: (" + (this.x - shipArt.width / 2 + (Math.random()*shipArt.width*2 - shipArt.width)) + ", " + (this.y + (Math.random()*500 - 250)) + ")", this);
+				expl.create(this.x - 30, (this.y + shipArt.height / 4));
+				expl.create(this.x - 20, (this.y - shipArt.height / 4));
+				expl.create(this.x + 30, (this.y));
+				explosionSound.play();
+				dispatchEvent(new Event("bossKilled", true));
+				stageRef.removeChild(this, true);
+				removeEventListener(Event.ENTER_FRAME, explodeLoop);
+				removeEventListener(Event.ENTER_FRAME, behaviourLoop);
+			} else if (explodeIterator % 10 == 0 && explodeIterator < 160) {	
+				this.alpha = 0.5;
+				expl.create(this.x + (Math.random()*shipArt.width / 2  - shipArt.width/4) - shipArt.width / 4, (this.y + (Math.random()*shipArt.height /2- shipArt.height/4)));
+				explosionSound.play(0, 0, VARS.soundVolume);
+			}
+			else {
+				this.alpha = 1;
+			}
 		}
 		
 		// Interface PrimaryWeapon GETTERS

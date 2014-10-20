@@ -4,6 +4,8 @@ package objects
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	
+	import debugger.Debug;
+	
 	import objects.MuzzleFlash;
 	
 	import starling.display.MovieClip;
@@ -33,6 +35,7 @@ package objects
 			direction = -1;
 			
 			_HP = HP;
+			_maxHp = _HP;
 			
 			// TEMPORARY SOLUTION. SEND WEAPONS AS OBJECTS() AS OPTIONAL PARAMETERS INSTEAD.
 			firePowerPrimary = firePower;
@@ -52,7 +55,13 @@ package objects
 		}
 		
 		override protected function onAddedToStage(e:Event):void {
+			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
+			
+			_convoOffset = new Point(-20, -20);
 			this.createShipArt("blackbird");
+			
+			addHpBar();
 			
 			_exhaustArt = this.createExhaustArt(new Point(shipArt.width / 3, - shipArt.height / 5));
 			

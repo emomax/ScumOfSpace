@@ -14,6 +14,7 @@ package objects
 	import global.VARS;
 	
 	import screens.InGame;
+	import screens.Level;
 	
 	import starling.core.Starling;
 	import starling.display.Image;
@@ -23,10 +24,13 @@ package objects
 	
 	public class Ship extends Sprite 
 	{
-		protected var shipArt:Image;
+		public var shipArt:Image;
 		protected var stageRef:Sprite;
 		public var lines:DrawRect;
 		protected var _weaponDistance:Point = new Point(0,0);
+		
+		protected var laserSound:Sound = new Assets.LaserSound();
+		protected var _hpBar:Bar;
 		
 		public var direction:int;
 		
@@ -38,11 +42,15 @@ package objects
 		
 		private var _width:int;
 		
-		protected var _HP:int;
+		public var _HP:Number;
+		protected var _maxHp:Number; 
 		
 		public var rotatable:Boolean = false;
 		
-		private var explosionSound:Sound = new Assets.ExplosionSound();
+		protected var _convoBubble:Image;
+		protected var _convoOffset:Point = new Point(0, 0);
+		
+		protected var explosionSound:Sound = new Assets.ExplosionSound();
 		
 		public function Ship(s:Sprite)
 		{
@@ -52,9 +60,17 @@ package objects
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 		}
 		
+		protected function addHpBar() : void {
+			_hpBar = new Bar();
+			_hpBar.y = -shipArt.height / 2 - 10;
+			addChild(_hpBar);
+		}
+		
 		protected function onAddedToStage(e:Event):void
 		{
 			this.boundingbox = this.bounds;
+			addHpBar();
+			
 			
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
@@ -77,6 +93,22 @@ package objects
 			// Add it
 			this.addChild(shipArt);
 			
+			
+			// Add convo bubble for speaking
+			_convoBubble = new Image(Assets.getAtlas().getTexture("talking_now"));
+			_convoBubble.scaleX = shipArt.scaleX;
+			_convoBubble.y = - 30 + _convoOffset.y;
+			_convoBubble.x = (shipArt.width / 2 + 15) * - shipArt.scaleX + _convoOffset.x;
+			addChild(_convoBubble);
+			hideConvoBubble();
+		}
+		
+		public function showConvoBubble() : void {
+			_convoBubble.visible = true;
+		}
+		
+		public function hideConvoBubble() : void {
+			_convoBubble.visible = false;
 		}
 		
 		public function init() : void {
@@ -133,10 +165,15 @@ package objects
 		public function primary() : void {}
 		public function secondary() : void {}
 		
-		public function takeDmg(dmg:int) : Boolean {
+		public function takeDmg(dmg:Number) : Boolean {
 			this._HP -= dmg;
 			
-			Debug.INFO(this._HP + " hp left.", this);
+			if (_hpBar) {
+				_hpBar.bar.scaleX = _HP / _maxHp;
+				Debug.INFO("maxHp: " + _maxHp + ", HP: " + _HP + ", scaleX: " + _HP / _maxHp, this)
+			}
+			
+			Debug.INFO(this._HP + " hp left. From attack with dmg: " + dmg, this);
 			
 			if (this._HP <= 0) {
 				this.destroy();
@@ -147,14 +184,14 @@ package objects
 			return false;
 		}
 		
-		private function destroy() : void {
-			InGame.ships.splice(InGame.ships.indexOf(this), 1);
+		protected function destroy() : void {
+			(stageRef as Level).ships.splice((stageRef as Level).ships.indexOf(this), 1);
 			
 			var expl:AbstractExplosion = new LargeExplosion(stageRef);
-			expl.create(this.x - this.width / 2, this.y);
+			expl.create(this.x - shipArt.width / 2, this.y);
 			
 			stageRef.removeChild(this, true);
-			explosionSound.play();
+			explosionSound.play(0, 0, VARS.soundVolume);
 		}
 	}
 }
