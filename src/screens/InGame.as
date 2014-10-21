@@ -71,8 +71,6 @@ package screens
 		private var timeCurrent:Number;
 		private var elapsed:Number;
 		
-		private var _gameState:String = "";
-		
 		private var targetCount:int;
 		private var killCount:int;
 		
@@ -402,13 +400,18 @@ package screens
 					(boss as Screecher).superEngage();
 					gameState = "play";
 					var gameWon:Function;
+					
+					addEventListener("bossDied", function(e:Event) : void {
+						gameState = "over";
+					});
+					
 					addEventListener("bossKilled", gameWon = function (e:Event) : void {
 						gameState = "bossExplode";
 						shakeScreen();
 						this.removeEventListener("bossKilled", gameWon);
 						soundHandler.stop();
 						
-						var tween:Tween = new Tween(this, 3.0, Transitions.EASE_IN_OUT);
+						var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
 						tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
 						tween.onComplete = function () : void { 
 							if (VARS.levelProgress < 2) VARS.levelProgress = 2;
@@ -786,13 +789,6 @@ package screens
 			gameState = "over";
 		}
 		
-		
-		// Let's the game loop know where in the story we are.
-		private function set gameState(state:String) : void {
-			_gameState = state;
-			Debug.INFO("gameState is now: " + state, this);
-		}
-		
 		// Let the player know that the game actually is over.
 		private function showGameOverScreen() : void {
 			GO = new Image(Assets.getAtlas().getTexture("gameOver"));
@@ -800,13 +796,13 @@ package screens
 			GO.y = 120;
 			
 			addChild(GO);
+			Level.soundHandler.stop();
+			(new Assets.GameOverMusic()).play();
 			
-			var tween:Tween = new Tween(this, 5.0, Transitions.EASE_IN_OUT);
+			var tween:Tween = new Tween(this, 6.0, Transitions.EASE_IN_OUT);
 			tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
-			tween.onComplete = tween.onComplete = function () : void { 
-				if (VARS.levelProgress < 2) VARS.levelProgress = 2;
+			tween.onComplete = tween.onComplete = function () : void {
 				dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
-				Level.soundHandler.stop();
 				Level.soundHandler = (new Assets.MenuMusic()).play();
 			}
 			
@@ -814,6 +810,13 @@ package screens
 			
 			//drawGame();
 		}
+		
+		// Let's the game loop know where in the story we are.
+		private function set gameState(state:String) : void {
+			_gameState = state;
+			Debug.INFO("gameState is now: " + state, this);
+		}
+		
 		
 		// Check for hits!
 		private function checkBullets() : void {

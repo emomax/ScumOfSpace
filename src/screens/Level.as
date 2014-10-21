@@ -22,10 +22,17 @@ package screens
 		
 		public static var soundHandler:SoundChannel = new SoundChannel();
 		protected var chatter:Ship;
+		protected var _gameState:String = "idle";
 		
 		public function Level()
 		{
 			super();
+		}
+		
+		// Let's the game loop know where in the story we are.
+		protected function set gameState(state:String) : void {
+			_gameState = state;
+			Debug.INFO("gameState is now: " + state, this);
 		}
 		
 		// Show bounding boxes of all ships

@@ -72,7 +72,7 @@ package objects
 			
 			bossState = "idle";
 			
-			firePowerPrimary = 20;
+			firePowerPrimary = 22;
 			
 			actionTimer = new Timer(3000, 1);
 			actionTimer.addEventListener(TimerEvent.TIMER, onActionTimer);
@@ -489,6 +489,7 @@ package objects
 			explodeIterator = 0;
 			addEventListener(Event.ENTER_FRAME, explodeLoop);
 			(stageRef as Level).fanfareSound.play();
+			stageRef.dispatchEvent(new Event("bossDied"));
 			bossState = "idle";
 		}
 		

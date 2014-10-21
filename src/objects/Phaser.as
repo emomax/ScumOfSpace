@@ -40,7 +40,7 @@ package objects
 			// PHASER SPECIFIC ATTRIBUTES
 			fireSpeedPrimary = 600;
 			canFirePrimary = true;
-			firePowerPrimary = 18;
+			firePowerPrimary = 21;
 			fireTimerPrimary = new Timer(fireSpeedPrimary, 1);
 			
 			fireTimerPrimary.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) : void { fireTimerPrimary.stop(); canFirePrimary = true; });

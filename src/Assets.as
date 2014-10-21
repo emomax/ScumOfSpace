@@ -88,6 +88,9 @@ package
 		[Embed(source="../media/sounds/lvl2.mp3")]
 		public static const Level2Music:Class;
 		
+		[Embed(source="../media/sounds/gameOver.mp3")]
+		public static const GameOverMusic:Class;
+		
 		public static function getAtlas():TextureAtlas {
 			if (sTextureAtlas == null) {
 				var texture:Texture = getTexture("AtlasTextureGame");

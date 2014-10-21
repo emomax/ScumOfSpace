@@ -1,5 +1,6 @@
 package screens {
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.media.Sound;
 	import flash.utils.Timer;
@@ -7,6 +8,8 @@ package screens {
 	import controllers.KeyboardHandler;
 	
 	import debugger.Debug;
+	
+	import events.NavigationEvent;
 	
 	import global.Conversations;
 	import global.VARS;
@@ -16,27 +19,34 @@ package screens {
 	import objects.IngameBackground;
 	import objects.Laser;
 	import objects.Phaser;
+	import objects.Screecher;
 	import objects.ShieldHit;
 	import objects.Ship;
 	import objects.Sparrow;
+	import objects.SuperPhaser;
 	import objects.Target;
 	
+	import starling.animation.Transitions;
+	import starling.animation.Tween;
+	import starling.core.Starling;
+	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.utils.deg2rad;
 	
+	import utils.Formatting;
 	import utils.TextGenerator;
 	
 	public class Level2 extends Level {
-		
-		// State of the gameLoop
-		private var _gameState:String = "over";
 		
 		// Objective parameters
 		private var currObjective:String = "";
 		private var targetCount:uint;
 		private var killCount:uint;
 		private var comingEnemies:Array = new Array();
+		private var comingPositions:Array = new Array();
+		private var iterator:int = 0;
+		private var nextSpawnFrame:Array = new Array();
 		
 		// Items for allowing an easier game
 		private var spawnTimer:Timer;
@@ -62,6 +72,7 @@ package screens {
 		// Objects to be handled 
 		private var player:Ship;
 		private var commander:Bumblebee;
+		private var GO:Image;
 		private var bg:IngameBackground;
 		
 		// SOUNDS 
@@ -138,13 +149,19 @@ package screens {
 					this.addEventListener("conversationOver", next);
 					break;
 				case 2:
-					text = global.Conversations.get("commander_boss");
+					text = global.Conversations.get("commander_regroup");
 					textHandler.textBlocks = text;
 					textHandler.startText();
 					this.addEventListener("conversationOver", next);
 					break;
 				case 3:
-					text = global.Conversations.get("commander_boss");
+					text = global.Conversations.get("commander_combo");
+					textHandler.textBlocks = text;
+					textHandler.startText();
+					this.addEventListener("conversationOver", next);
+					break;
+				case 4: 
+					text = global.Conversations.get("commander_finished");
 					textHandler.textBlocks = text;
 					textHandler.startText();
 					this.addEventListener("conversationOver", next);
@@ -181,6 +198,7 @@ package screens {
 						var droneLoop:Function;
 						
 						addEventListener(Event.ENTER_FRAME, droneLoop = function(e:Event) : void {
+							
 							if ((en as Ship).boundingbox.intersects((commander as Ship).boundingbox)) {
 								removeEventListener(Event.ENTER_FRAME, droneLoop);
 								
@@ -233,11 +251,11 @@ package screens {
 							removeEventListener("enemyDown", arguments.callee);
 					});
 					
-					comingEnemies = new Array("Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone");
+					comingEnemies = new Array("Drone", "Drone", "Drone", "Drone");
 					spawnEnemy("Drone");
 					
 					killCount = 0;
-					targetCount = 8;
+					targetCount = 5;
 					
 					gameState = "survival";
 					break;
@@ -283,11 +301,166 @@ package screens {
 					gameState = "play";
 					break;
 				case 7: 
+					commander.x = 760;
+					commander.y = stage.stageHeight * 0.6;
+					gameState = "commander_enters";
+					break;
+				
+				case 8:
 					gameState = "over";
 					startConvo();
 					break;
-				case 8: 
+				
+				case 9: 
+					gameState = "commander_leaving";
+					commander.velX = 0;
 					break;
+
+				case 10:
+					currObjective = "killCount";
+					
+					addEventListener("objectiveComplete", function(e:Event) : void {
+						removeEventListener("objectiveComplete", arguments.callee);
+						next();
+					});
+					
+					addEventListener("enemyDown", function(e:Event) : void {
+						if (++killCount == targetCount)
+							removeEventListener("enemyDown", arguments.callee);
+					});
+					
+					// 3 first
+					comingPositions.push(new Point(stage.stageWidth / 2 + 260, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2 + 130, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2 - 130, -84.75 / 2 + 10));
+					
+					// time
+					nextSpawnFrame.push(60);
+					nextSpawnFrame.push(80);
+					nextSpawnFrame.push(100);
+					nextSpawnFrame.push(120);
+					
+					// 3 second
+					comingPositions.push(new Point(stage.stageWidth / 2 - 260, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2 - 130, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2 + 130, stage.stageHeight + 84.75 / 2));
+					
+					// time
+					nextSpawnFrame.push(230);
+					nextSpawnFrame.push(250);
+					nextSpawnFrame.push(260);
+					nextSpawnFrame.push(280);
+					
+					// 3 third
+					comingPositions.push(new Point(stage.stageWidth / 2 + 260, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2 + 130, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2, -84.75 / 2 + 10));
+					comingPositions.push(new Point(stage.stageWidth / 2 - 260, -84.75 / 2 + 10));
+					
+					// time
+					nextSpawnFrame.push(390);
+					nextSpawnFrame.push(410);
+					nextSpawnFrame.push(430);
+					nextSpawnFrame.push(450);
+					
+					// 3 forth
+					comingPositions.push(new Point(stage.stageWidth / 2 - 260, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2 - 130, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2 + 260, stage.stageHeight + 84.75 / 2));
+					comingPositions.push(new Point(stage.stageWidth / 2, stage.stageHeight + 84.75 / 2));
+					
+					// time
+					nextSpawnFrame.push(560);
+					nextSpawnFrame.push(580);
+					nextSpawnFrame.push(600);
+					nextSpawnFrame.push(620);
+						
+					comingEnemies = new Array("Drone_fixed", "Drone_fixed", "Drone_fixed", "Drone_fixed", 
+											  "Drone_fixed", "Drone_fixed", "Drone_fixed", "Drone_fixed",
+											  "Drone_fixed", "Drone_fixed", "Drone_fixed", "Drone_fixed",
+											  "Drone_fixed", "Drone_fixed", "Drone_fixed", "Drone_fixed");
+					
+					killCount = 0;
+					targetCount = 16;
+					
+					gameState = "survival_fixed";
+					break;
+				case 11: 
+					commander.x = 760;
+					commander.y = stage.stageHeight * 0.6;
+					gameState = "commander_enters";
+					break;
+				
+				case 12:
+					gameState = "over";
+					startConvo();
+					break;
+				
+				case 13: 
+					gameState = "commander_leaving";
+					commander.velX = 0;
+					break;
+
+				case 14: 
+					currObjective = "killCount";
+					
+					addEventListener("objectiveComplete", function(e:Event) : void {
+						removeEventListener("objectiveComplete", arguments.callee);
+						next();
+					});
+					
+					this.addEventListener("enemyDown", function(e:Event) : void {
+						trace("I am called!");
+						if (++killCount == targetCount) {
+							removeEventListener("enemyDown", arguments.callee);
+						}
+						Debug.INFO(killCount + "/" + targetCount + " enemies defeated.", this);
+					});
+					
+					comingEnemies = new Array("SuperPhaser", "SuperPhaser");
+					spawnEnemy("SuperPhaser");
+					
+					killCount = 0;
+					targetCount = 3;
+					
+					ships.push(player);
+					gameState = "play";
+					break;
+					
+				case 15: 
+					commander.x = 760;
+					commander.y = stage.stageHeight * 0.6;
+					gameState = "commander_enters";
+					break;
+				
+				case 16:
+					gameState = "over";
+					startConvo();
+					break;
+				
+				case 17: 
+					gameState = "both_leaving";
+					commander.velX = 0;
+					player.velX = 0;
+					(stageRef as Level).fanfareSound.play();
+					soundHandler.stop();
+					break;
+				case 18:	
+					gameState = "over";
+					var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
+					tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
+					tween.onComplete = function () : void { 
+						if (VARS.levelProgress < 3) VARS.levelProgress = 3;
+						dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+						
+						Level.soundHandler.stop();
+						Level.soundHandler = (new Assets.MenuMusic()).play();
+					}
+					starling.core.Starling.juggler.add(tween);
+					break;
+				
 				default:
 					throw new Error("VARS.currProgress = "+ VARS.currProgress + " is out of story range!");
 			}
@@ -396,6 +569,18 @@ package screens {
 					}
 					break;
 				
+				case "both_leaving":
+					commander.velX -= commander.speed * 0.3;
+					commander.x += commander.velX;	
+					
+					player.velX -= player.speed * 0.3;
+					player.x += player.velX;
+					
+					if (commander.x < -commander.width && player.x < -player.width) {
+						next();
+					}
+					break;
+				
 				case "play":
 					
 					if (checkObjective()) {
@@ -447,8 +632,17 @@ package screens {
 					checkBullets();
 					
 					break;
+				
+				case "survival_fixed":
+						trace("nextSpawnFrame is: " + utils.Formatting.formatArray(nextSpawnFrame));
+					if (++iterator == nextSpawnFrame[0]) {
+						nextSpawnFrame.splice(0, 1);
+						spawnEnemy(comingEnemies.splice(0, 1));
+					}
 					
-					break;
+					trace("iterator is: " + iterator);
+					
+					// fallthrough
 				
 				case "survival": 
 					
@@ -491,6 +685,53 @@ package screens {
 					
 					break;
 				
+				case "play_survival":
+					if (++iterator == nextSpawnFrame[0]) {
+						nextSpawnFrame.splice(0, 1);
+						if (comingEnemies[comingEnemies.length - 1] != "Phaser")
+							spawnEnemy(comingEnemies.splice(comingEnemies.length - 1, 1));
+					}
+					
+					if (checkObjective()) {
+						Debug.INFO("Objective completed!", this);
+						this.dispatchEvent(new Event("objectiveComplete"));
+						break;
+					}
+					
+					if(keyHandler.up) player.velY -= player.speed;
+					if(keyHandler.down) player.velY += player.speed;
+					if(keyHandler.left) player.velX -= player.speed;
+					if(keyHandler.right) player.velX += player.speed;
+					
+					if(Math.abs(player.velY) > player.maxVel) player.velY = (Math.abs(player.velY) / player.velY) * player.maxVel; 	// |velY| / velY -> 1 or -1
+					if(Math.abs(player.velX) > player.maxVel) player.velX = (Math.abs(player.velX) / player.velX) * player.maxVel;	// |velX| / velX -> 1 or -1
+					
+					player.velX *= global.VARS.airRes;
+					player.velY *= global.VARS.airRes;
+					
+					if(Math.round(player.velX*10) == 0) player.velX = 0;
+					if(Math.round(player.velY*10) == 0) player.velY = 0;
+					
+					player.x += player.velX;
+					player.y += player.velY;
+					
+					if(player.x > this.xMax || player.x < player.width / 4) 
+						player.x = (player.x > (stage.stageWidth / 2)) ? this.xMax : player.width / 4;
+					
+					if(player.y > this.yMax || player.y < player.height / 2)
+						player.y = (player.y > (stage.stageHeight / 2)) ? this.yMax : player.height / 2;
+					
+					(player as Sparrow).exhaustArt.scaleX = -(player.velX / player.maxVel) + 1;
+					
+					// Handle weaponry
+					if(keyHandler.fire1) player.primary();
+					if(keyHandler.fire2) player.secondary();
+					
+					checkShipCollisions();
+					checkBullets();
+					
+					break;
+				
 				default: 
 					throw new Error("Unknown gameState! gameState = '"+_gameState+"'");
 			}
@@ -526,6 +767,16 @@ package screens {
 					addChild(en);
 					
 					break;
+				
+				case "SuperPhaser":
+					en = new SuperPhaser(this, player);
+					en.x = -en.width;
+					en.y = Math.random()* (stage.stageHeight - 100) + 50;
+					en.init();
+					ships.push(en);
+					addChild(en);
+					
+					break;
 				case "Target":
 					var t:Target = new Target(this);
 					t.x = 40;
@@ -545,8 +796,22 @@ package screens {
 					addChild(en);
 					(en as Drone).setDirection(upper);
 					break;
+				
+				case "Drone_fixed":
+					en = new Drone(this);
+					var pos:Point = new Point(); 
+					pos.x = (comingPositions[0] as Point).x;
+					pos.y = (comingPositions[0] as Point).y;
+					comingPositions.splice(0, 1);
+					Debug.INFO( "comingPos = ( " + pos.x + ", " + pos.y + ")", this);
+					en.x = pos.x;
+					en.y = pos.y;
+					ships.push(en);
+					addChild(en);
+					(en as Drone).setDirection(pos.y > stage.stageHeight / 2);
+					break;
 				default: 
-					throw new Error("spawnEnemy() received unknown type request!");
+					throw new Error("spawnEnemy() received unknown type request: '" + type + "'");
 			}
 		}
 		
@@ -572,9 +837,37 @@ package screens {
 			return false;
 		}
 		
-		// Function called when player dies
+		// Player died - game over!
 		private function gameOver() : void {
+			//cleanUp();
 			
+			this.removeEventListener(Event.ENTER_FRAME, gameLoop);
+			
+			showGameOverScreen();
+			//(boss as Screecher).disable();
+			gameState = "over";
+		}
+		
+		// Let the player know that the game actually is over.
+		private function showGameOverScreen() : void {
+			GO = new Image(Assets.getAtlas().getTexture("gameOver"));
+			GO.x = stage.stageWidth / 2 - GO.width / 2;
+			GO.y = 120;
+			
+			addChild(GO);
+			Level.soundHandler.stop();
+			(new Assets.GameOverMusic()).play();
+			
+			var tween:Tween = new Tween(this, 6.0, Transitions.EASE_IN_OUT);
+			tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
+			tween.onComplete = tween.onComplete = function () : void {
+				dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+				Level.soundHandler = (new Assets.MenuMusic()).play();
+			}
+			
+			starling.core.Starling.juggler.add(tween);	
+			
+			//drawGame();
 		}
 		
 		// Shake screen. Explosion? Earth quake? One does not know
@@ -603,21 +896,22 @@ package screens {
 			shakeIterator++;
 		}		
 		
-		// Let's the game loop know where in the story we are.
-		private function set gameState(state:String) : void {
-			_gameState = state;
-			Debug.INFO("gameState is now: " + state, this);
-		}
 		
 		// Check for collisions!
 		private function checkShipCollisions() : void { 
 			for (var i:uint = 0; i < ships.length; ++i) {
-				if (ships[i] == player) 
+				//Debug.INFO(utils.Formatting.getName(ships[i]), this);
+				if (ships[i] == player || utils.Formatting.getName(ships[i]) == "Phaser") 
 					continue;
+				
 				
 				if ((ships[i] as Ship).boundingbox.intersects(player.boundingbox)) { 
 					player.velY += (ships[i] as Drone).speed * 15; 
-					player.takeDmg(30);
+					if (player.takeDmg(45)) {
+						gameOver();
+						(new Assets.ExplosionSound() as Sound).play(0, 0, global.VARS.soundVolume);
+						return;
+					}
 					(ships[i] as Drone).explode();
 					
 					var shieldHit:ShieldHit = new ShieldHit(player);

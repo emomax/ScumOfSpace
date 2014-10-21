@@ -55,10 +55,17 @@ package global {
 									  ["Commander", "Let's hope you're as good with real enemies as with space targets.."],
 									  ["Commander", "CHARGE FORTH!\nFOR MIKE!"]);
 					break;
-				case "commander_boss":
-					convo = new Array(["Jonas", "Varför är jag här undrar du nu?"],
-						["Jonas", "Jo, Max är törstig och vet inte hur bossen ska se ut..."],
-						["Jonas", "Vad tror jag? Alltså jag, Jonas?"]);
+				case "commander_regroup":
+					convo = new Array(["Commander", "It seems they are re-grouping!"],
+						["Commander", "Take cover!"]);
+					break;
+				case "commander_combo":
+					convo = new Array(["Commander", "The drones are gone!"],
+									  ["Commander", "Finish the remaining Phasers so we can\n get out of here!"]);
+					break;
+				case "commander_finished":
+					convo = new Array(["Commander", "Well fought!\nThat'll teach them not to mess with the human race!"],
+									  ["Commander", "Let's head back to the base before more of these filth arrive."])
 					break;
 				
 				default: 

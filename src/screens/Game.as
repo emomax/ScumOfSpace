@@ -7,6 +7,7 @@ package screens
 	import events.NavigationEvent;
 	
 	import screens.InGame;
+	import screens.Level2;
 	
 	import starling.display.Sprite;
 	import starling.events.Event;
