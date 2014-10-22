@@ -443,7 +443,6 @@ package screens {
 				case 17: 
 					gameState = "both_leaving";
 					commander.velX = 0;
-					player.velX = 0;
 					(stageRef as Level).fanfareSound.play();
 					soundHandler.stop();
 					break;

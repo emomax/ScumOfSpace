@@ -43,6 +43,15 @@ package objects {
 					mg = new Image(Assets.getTexture("Foreground2_2"));
 					mg2 = new Image(Assets.getTexture("Foreground2_2"));
 					break;
+				case 3:
+					bg = new Image(Assets.getTexture("Background_3"));
+					bg2 = new Image(Assets.getTexture("Background_3"));
+					
+					fg = new Image(Assets.getTexture("Foreground_3"));
+					fg2 = new Image(Assets.getTexture("Foreground_3"));
+					
+					mg = new Image(Assets.getTexture("Foreground2_3"));
+					mg2 = new Image(Assets.getTexture("Foreground2_3"));
 			}
 			
 			bg2.x = -700;

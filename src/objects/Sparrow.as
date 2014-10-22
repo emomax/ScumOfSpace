@@ -74,6 +74,7 @@ package objects
 			addEventListener(Event.ENTER_FRAME, sparrowLoop);
 		}
 		
+		
 		private function sparrowLoop(e:Event) : void {
 			if (this._HP < this._maxHp) {
 				this._HP += 0.05;

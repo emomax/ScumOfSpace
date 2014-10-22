@@ -211,6 +211,21 @@ package utils {
 				case "misc":
 					showIcon("UA");
 					break;
+				case "emp":
+					showIcon("UA");
+					stageRef.dispatchEvent(new Event("emp"));
+					stageRef.addEventListener("shakeDone", effectDone);
+					return;
+				case "show_enemies":
+					showIcon("UA");
+					stageRef.dispatchEvent(new Event("showEnemies"));
+					stageRef.addEventListener("shakeDone", effectDone);
+					return;
+				case "kill_commander":
+					showIcon("UA");
+					stageRef.dispatchEvent(new Event("killCommander"));
+					stageRef.addEventListener("shakeDone", effectDone);
+					return;
 				default:
 					Debug.INFO("The speaker exists", this);
 			}

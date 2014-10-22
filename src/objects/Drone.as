@@ -23,7 +23,11 @@ package objects {
 		// addIterator;
 		private var iterator:uint;
 		
-		public function Drone(s:Sprite) {
+		// does it count?
+		private var _countsTowardsObjective:Boolean;
+		
+		public function Drone(s:Sprite, countsTowardsObjective:Boolean = true) {
+			_countsTowardsObjective = countsTowardsObjective;
 			super(s);
 			Debug.INFO("A drone was created!", this);
 			this.createShipArt("phaser");
@@ -88,7 +92,8 @@ package objects {
 			this.removeEventListener(Event.ENTER_FRAME, droneLoop);
 			(stageRef as Level).ships.splice((stageRef as Level).ships.indexOf(this), 1);
 			stageRef.removeChild(this, true);
-			stageRef.dispatchEvent(new Event("enemyDown"));
+			if (_countsTowardsObjective) 
+				stageRef.dispatchEvent(new Event("enemyDown"));
 		}
 	}
 }

@@ -35,8 +35,8 @@ package objects
 		private var iterator:Number;
 		private var hoverIterator:int = 0;
 		
-		private var homingBeamTop:Image = new Image(Assets.getAtlas().getTexture("homingLaser"));
-		private var homingBeamBot:Image = new Image(Assets.getAtlas().getTexture("homingLaser"));
+		public var homingBeamTop:Image = new Image(Assets.getAtlas().getTexture("homingLaser"));
+		public var homingBeamBot:Image = new Image(Assets.getAtlas().getTexture("homingLaser"));
 		
 		private var offsetInRadians:Number = 0;
 		
@@ -361,6 +361,10 @@ package objects
 			bossState = "idle";
 			
 			startActionTimer();
+		}
+		
+		public function EMP() : void {
+			bossState = "player_dead";
 		}
 		
 		public function startActionTimer() : void {

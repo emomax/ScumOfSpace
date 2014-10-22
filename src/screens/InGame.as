@@ -61,6 +61,8 @@ package screens
 		private var xMax:int;
 		private var yMax:int;
 		
+		private var iterator:Number = 0;
+		
 		private var GO:Image;
 		
 		private static var _explosion:AbstractExplosion;
@@ -96,10 +98,10 @@ package screens
 		
 		private function onAddedToStage() : void {
 			this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
 			init();
 			drawGame();
 			ships.push(player);
-			addChild(player);
 			gameState = "idle";
 			startBtn.removeEventListener(Event.TRIGGERED, onMouseDown);
 			removeChild(startBtn, true);
@@ -178,6 +180,12 @@ package screens
 					break;
 				case 4:
 					text = global.Conversations.get("boss_new_weapon");
+					textHandler.textBlocks = text;
+					textHandler.startText();
+					this.addEventListener("conversationOver", next);
+					break;
+				case 5: 
+					text = global.Conversations.get("boss_leaving");
 					textHandler.textBlocks = text;
 					textHandler.startText();
 					this.addEventListener("conversationOver", next);
@@ -359,6 +367,7 @@ package screens
 						});
 					});
 					break;
+				
 				case 9:
 					ships.push(boss);
 					currObjective = "boss_first";
@@ -397,33 +406,46 @@ package screens
 					gameState = "over";
 					break;
 				case 13:
+					
 					(boss as Screecher).superEngage();
 					gameState = "play";
-					var gameWon:Function;
-					
-					addEventListener("bossDied", function(e:Event) : void {
-						gameState = "over";
-					});
-					
-					addEventListener("bossKilled", gameWon = function (e:Event) : void {
-						gameState = "bossExplode";
+					currObjective = "boss_third";
+					addEventListener("objectiveComplete", function(e:Event) : void {
+						removeEventListener("objectiveComplete", arguments.callee);
+						currObjective = "ua";
 						shakeScreen();
-						this.removeEventListener("bossKilled", gameWon);
-						soundHandler.stop();
-						
-						var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
-						tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
-						tween.onComplete = function () : void { 
-							if (VARS.levelProgress < 2) VARS.levelProgress = 2;
-							dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
-							
-							Level.soundHandler.stop();
-							Level.soundHandler = (new Assets.MenuMusic()).play();
-						}
-						starling.core.Starling.juggler.add(tween);
+						(new Assets.ExplosionSound()).play(0, 0, VARS.soundVolume);
+						next();
 					});
 					break;
-				default: break;
+				case 14:
+					startConvo();	
+					(boss as Screecher).idle();
+					gameState = "over";
+					
+					break;
+				case 15:
+					gameState = "boss_leaving";
+					fanfareSound.play();
+					break;
+				case 16:
+					gameState= "over";
+					soundHandler.stop();
+					
+					var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
+					tween.fadeTo(0);
+					tween.onComplete = function () : void { 
+						if (VARS.levelProgress < 2) VARS.levelProgress = 2;
+						dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+						
+						Level.soundHandler.stop();
+						Level.soundHandler = (new Assets.MenuMusic()).play();
+					}
+					starling.core.Starling.juggler.add(tween);
+					
+					break;
+				default: 
+					break;
 			}
 			
 		}
@@ -479,6 +501,7 @@ package screens
 			textHandler.y = stage.stageHeight;
 			
 			drawStart();
+			addChild(player);
 			
 			addChild(textHandler);
 		}
@@ -567,6 +590,7 @@ package screens
 				case "mike_enters":
 					var allInPlace:Boolean = true;
 					addChild(mike);
+					player.exhaustArt.scaleX = 1;
 					
 					if (mike.x > stage.stageWidth - 100) {
 						allInPlace = false;
@@ -707,10 +731,32 @@ package screens
 					}
 					
 					boss.x += 1;
+					
+					break;
+				case "boss_leaving":
+					boss.rotation -= deg2rad(iterator += 0.01);
+					trace(boss.rotation);
+					if (boss.rotation < -Math.PI / 4) {
+						boss.velX = 0;
+						boss.velY = 0;
+						gameState = "boss_takeoff";
+						(boss as Screecher).EMP();
+					}
+					break;
+				case "boss_takeoff":
+					boss.velX += 0.04;
+					boss.velY -= 0.05;
+					boss.x += boss.velX;
+					boss.y += boss.velY;
+					Debug.INFO("Boss position: (" + boss.velX + ", " + boss.velY + ")")
+					
+					if (boss.x > stage.stageWidth / 2 && boss.y < -boss.height)
+						next();
+					break;
 				case "bossExplode":
 					// fall through
 				case "over":
-					
+					player.exhaustArt.scaleX = 1;
 					break;
 				default: 
 					throw new Error("Unhandled result in gameLoop: '"+ _gameState + "' was unknown.");
@@ -734,6 +780,8 @@ package screens
 						return true;
 					}
 					break;
+				case "boss_third":
+					return (boss._HP <= 200);
 				case "ua":
 					return false;
 				default:

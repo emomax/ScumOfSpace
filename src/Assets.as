@@ -22,6 +22,7 @@ package
 		[Embed(source="../media/graphics/level_complete.png")]
 		public static const LevelCompleteImage:Class;
 		
+		// LEVEL 2
 		[Embed(source="../media/graphics/spaceBackground_2.png")]
 		public static const Background_2:Class;
 		
@@ -31,6 +32,7 @@ package
 		[Embed(source="../media/graphics/spaceForeground2_2.png")]
 		public static const Foreground2_2:Class;		
 		
+		// LEVEL 1
 		[Embed(source="../media/graphics/spaceBackground.png")]
 		public static const Background:Class;
 		
@@ -39,6 +41,16 @@ package
 		
 		[Embed(source="../media/graphics/spaceForeground2.png")]
 		public static const Foreground2:Class;
+		
+		// LEVEL 3
+		[Embed(source="../media/graphics/spaceBackground_3.png")]
+		public static const Background_3:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground_3.png")]
+		public static const Foreground_3:Class;
+		
+		[Embed(source="../media/graphics/spaceForeground2_3.png")]
+		public static const Foreground2_3:Class;
 		
 		[Embed(source="../media/graphics/atlas.png")]
 		public static const AtlasTextureGame:Class;

@@ -8,6 +8,7 @@ package screens
 	
 	import screens.InGame;
 	import screens.Level2;
+	import screens.Level3;
 	
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -54,6 +55,17 @@ package screens
 					lvlSelection.dispose();
 					lvlSelection = new Sprite();
 					inGame = new Level2();
+					inGame.visible = true;
+					Level.soundHandler.stop();
+					addChild(inGame);
+					break;
+				case "level_3":
+					
+					(new Assets.PlaySound()).play();
+					lvlSelection.visible = false;
+					lvlSelection.dispose();
+					lvlSelection = new Sprite();
+					inGame = new Level3();
 					inGame.visible = true;
 					Level.soundHandler.stop();
 					addChild(inGame);

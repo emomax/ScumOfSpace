@@ -41,14 +41,24 @@ package global {
 									  ["UA", "Now you will see the full power of the Voreenean Empire!"],
 									  ["UA", "Taste my lasers, scum!"]);
 					break;
+				case "boss_leaving":
+					convo = new Array(["UA", "ENOUGH!"],
+									  ["UA", "I don't need to prove myself against scum like you!"],
+									  ["UA", "We will meet again, and when we do.."],
+									  ["UA", "..I will crush you like your puny friend."],
+									  ["UA", "Hrmf..."]);
+					break;
 				case "commander_intro":
 					convo = new Array(["Commander", "... So here we are. How are you feeling?"],
 									  ["Commander", "Atleast the funeral was beautiful.\nPoor Mike.."],
 									  ["Commander", ".. anyhow. I brought you out here for a reason.\nOutside enemy radars."],
-									  ["Commander", "There's something I want you to have. Mike was supposed to have it but with him being gone and all.."],
+									  ["Commander", "I want us to strike against the Voreenean home planet."],
+									  ["Commander", "Attack them at their heart.\nKill them all."],
+									  ["Commander", "Since we cannot figh..."],
 									  ["commander_hit", ""],
-									  ["Commander", "Blast it! Drones!\nWe have been ambushed! Ready yourself! Avoid the enemy ships!"], 
-									  ["Commander", "Remember that your laser gun is useless against them!"]);
+									  ["Commander", "Blast it! Drones!"],
+									  ["Commander", "How did they know we were here?"],
+									  ["Commander", "Ready yourself! Avoid the enemy ships!"]);
 					break;
 				case "commander_middle":
 					convo = new Array(["Commander", "You're still alive!\nI saw some Phasers up ahead!"],
@@ -67,7 +77,32 @@ package global {
 					convo = new Array(["Commander", "Well fought!\nThat'll teach them not to mess with the human race!"],
 									  ["Commander", "Let's head back to the base before more of these filth arrive."])
 					break;
-				
+				case "commander_intro_2":
+					convo = new Array(["Commander", "Good job back there.\nWe sure showed them what they're up against!"],
+									  ["Commander", "Here we are, at the Voreenean home planet..."],
+									  ["Commander", "... but where are they all?"],
+									  ["show_enemies", ""],
+									  ["Commander", "Whaaah..!"],
+									  ["UA", "It has come to my attention that you\nare two whereas I am only one."],
+									  ["UA", "What would happen if we simply..."],
+									  ["UA", "... would even out the odds?"],
+									  ["Commander", "No, wait!!!"],
+									  ["kill_commander", ""],
+									  ["UA", "And now, the small one.."],
+									  ["UA", "Did you really think you could venture\nto the Voreenean home planet and make it out alive?."], 
+									  ["UA", "Fwuhuhuhuhu..."]);
+					break;
+				case "boss_2_phase_1":
+					convo = new Array(["UA", "Do you really think you have what it takes\nto beat the might of the Voreenean fleet?"]);
+					break;
+				case "boss_2_phase_2":
+					convo = new Array(["UA", "MmMWhHrWWwmMmRRAGH!\n"],
+									  ["UA", "DRONES! BRING ME HIS HEAD!"]);
+					break;
+				case "boss_2_phase_3":
+					convo = new Array(["UA", "This.. This can't BE!"],
+									  ["UA", "I'LL MAKE YOUR LIFE A LIVING HELL."]);
+					break;
 				default: 
 					throw new Error("Couldn't not extract conversation - unknown progress: " + progress);
 			}
