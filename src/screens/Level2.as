@@ -448,7 +448,16 @@ package screens {
 					break;
 				case 18:	
 					gameState = "over";
-					var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
+					var lvlComplete:Image = new Image(Assets.getAtlas().getTexture("lvl_complete"));
+					lvlComplete.x = stage.stageWidth / 2 - lvlComplete.width / 2;
+					lvlComplete.y = 200;
+					addChild(lvlComplete);
+					lvlComplete.alpha = 0;
+					
+					var t:Tween = new Tween(lvlComplete, 1);
+					t.fadeTo(1);
+					Starling.juggler.add(t);
+					var tween:Tween = new Tween(this, 6.0, Transitions.EASE_IN_OUT);
 					tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
 					tween.onComplete = function () : void { 
 						if (VARS.levelProgress < 3) VARS.levelProgress = 3;

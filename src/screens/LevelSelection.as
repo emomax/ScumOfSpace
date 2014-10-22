@@ -128,14 +128,6 @@ package screens {
 				(levels[j] as Button).enabled = false;
 				addChild(levels[j]);
 			}
-	
-			// Set label(s)
-			label1 = new TextField(200, 40, "", bodyFont.fontName, 30, 0xbbbbbb);
-			label1.text = "Chapter 1";
-			label1.x = 175;
-			label1.y = 25;
-			
-			addChild(label1);
 			
 			addEventListener(Event.ENTER_FRAME, planetRotation);
 		}

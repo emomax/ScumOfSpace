@@ -13,6 +13,9 @@ package
 		
 		// GRAPHICS
 		
+		[Embed(source="../media/graphics/ending_credits.png")]
+		public static const EndingCredits:Class;
+		
 		[Embed(source="../media/graphics/MenuImage.png")]
 		public static const MenuImage:Class;
 		

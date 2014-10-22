@@ -427,6 +427,15 @@ package screens
 				case 15:
 					gameState = "boss_leaving";
 					fanfareSound.play();
+					var lvlComplete:Image = new Image(Assets.getAtlas().getTexture("lvl_complete"));
+					lvlComplete.x = stage.stageWidth / 2 - lvlComplete.width / 2;
+					lvlComplete.y = 200;
+					addChild(lvlComplete);
+					lvlComplete.alpha = 0;
+					
+					var t:Tween = new Tween(lvlComplete, 1);
+					t.fadeTo(1);
+					Starling.juggler.add(t);
 					break;
 				case 16:
 					gameState= "over";

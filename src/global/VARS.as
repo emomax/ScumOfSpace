@@ -8,7 +8,7 @@ package global
 		public static var showBoundingBoxes:Boolean = false;
 		public static var currProgress:int = -1;
 		public static var storyProgress:int = 0;
-		public static var levelProgress:int = 1;
+		public static var levelProgress:int = 3;
 		
 		public static var soundVolume:SoundTransform = new SoundTransform(0.2);
 	}

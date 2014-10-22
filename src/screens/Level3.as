@@ -690,7 +690,7 @@ package screens {
 						removeEventListener("objectiveComplete", arguments.callee);
 						shakeScreen();
 						currObjective = "ua";
-						Starling.juggler.purge();
+						Starling.juggler.removeTweens(boss);
 						next();
 					});
 					(boss as SuperScreecher).target = player;
@@ -746,25 +746,50 @@ package screens {
 					});
 					
 					addEventListener("bossKilled", gameWon = function (e:starling.events.Event) : void {
+						var lvlComplete:Image = new Image(Assets.getAtlas().getTexture("lvl_complete"));
+						lvlComplete.x = stage.stageWidth / 2 - lvlComplete.width / 2;
+						lvlComplete.y = 200;
+						addChild(lvlComplete);
+						lvlComplete.alpha = 0;
+						
+						var t:Tween = new Tween(lvlComplete, 1);
+						t.fadeTo(1);
+						Starling.juggler.add(t);
 						gameState = "over";
 						shakeScreen();
 						this.removeEventListener("bossKilled", gameWon);
 						soundHandler.stop();
 							
-						var tween:Tween = new Tween(this, 4.0, Transitions.EASE_IN_OUT);
+						var tween:Tween = new Tween(this, 5.0, Transitions.EASE_IN_OUT);
 						tween.fadeTo(0);    // equivalent to 'animate("alpha", 0)'
-						tween.onComplete = function () : void { 
-							if (VARS.levelProgress < 2) VARS.levelProgress = 2;
-							dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
-							
-							Level.soundHandler.stop();
-							Level.soundHandler = (new Assets.MenuMusic()).play();
-						}
+						tween.onComplete = showCredits;
 						starling.core.Starling.juggler.add(tween);
 					});
 					
 					break;
 			}
+		}
+		
+		private function showCredits() : void {
+			var bg:Image = new Image(Assets.getTexture("EndingCredits"));
+			this.parent.addChild(bg);
+			bg.alpha = 0;
+			var ite:uint = 0;
+			
+			var creditLoop:Function;
+			
+			addEventListener(starling.events.Event.ENTER_FRAME, creditLoop = function(e:starling.events.Event) : void {
+				if (ite++ < 180) {
+					bg.alpha += 1/180;
+				} else if (ite > 400 && ite < 580) {  
+					bg.alpha -= 1/180;
+				} else if (ite == 580) {
+					dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN, {id: "lvlSelection"}, true));
+					this.parent.removeChild(bg);
+					Level.soundHandler.stop();
+					Level.soundHandler = (new Assets.MenuMusic()).play();
+				}
+			});
 		}
 		
 		// Spawn enemy of type 'type'

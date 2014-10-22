@@ -361,9 +361,6 @@ package objects
 			bossState = "idle";
 			stageRef.removeEventListener("megaBlast", engage);
 			
-			_coolDownTimer.stop();
-			fireTimerPrimary.stop();
-			actionTimer.stop();
 			startActionTimer();
 		}
 		
